@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>VK Music</title>
+    <title>VK Музыка</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'>    <link rel="stylesheet" href="./vendor/videogular-themes-default/videogular.css"/>
-
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="assets/dist.css">
     <style type="text/css">
         /**
@@ -56,7 +55,7 @@
                     <vg-controls>
                         <div class="music-bar__panel">
                             <div class="music-bar__brand">
-                                <i class="fa fa-vk music-bar__brand-icon"></i> Music
+                                <i class="fa fa-vk music-bar__brand-icon"></i> Музыка
                             </div>
                             <div class="music-bar__controls" ng-if="mc.currentSource.length">
                                 <vg-play-pause-button></vg-play-pause-button>
@@ -82,7 +81,7 @@
                                     </div>
                                 </form>
 
-                                <vg-volume class="music-bar__volume" ng-if="mc.currentSource.length">
+                                <vg-volume clangular-vk-musicass="music-bar__volume" ng-if="mc.currentSource.length">
                                     <vg-mute-button></vg-mute-button>
                                     <volume-horizontal-bar></volume-horizontal-bar>
                                 </vg-volume>
