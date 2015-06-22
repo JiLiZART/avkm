@@ -1,3 +1,14 @@
+@font-face {
+    font-family: 'videogular';
+    src: url('../fonts/videogular.eot');
+    src: url('fonts/videogular.eot?#iefix') format('embedded-opentype'),
+            url('fonts/videogular.woff') format('woff'),
+            url('fonts/videogular.ttf') format('truetype'),
+            url('fonts/videogular.svg#videogular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 html, body {
     font-family: 'Open Sans', sans-serif;
     font-size: 13px;
@@ -218,19 +229,4 @@ body,
     transition: opacity 0.3s;
     -webkit-transform: translate3d(0, 0, 0);
     transform: translate3d(0, 0, 0);
-}
-
-.music__album-list {
-    margin-right: -10px;
-}
-
-.music__album-item {
-    display: inline-block;
-    vertical-align: top;
-    width: 125px;
-    margin-right: 10px;
-}
-
-.music__album-item-title {
-    font-size: 15px;
 }
