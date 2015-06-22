@@ -1,4 +1,4 @@
-(function (window) {
+(function (angular, window) {
     'use strict';
 
     angular.module('music')
@@ -191,4 +191,4 @@
         return methods;
     }
 
-})(window);
+})(angular, window);

@@ -1,6 +1,6 @@
-(function(angular) {
+(function() {
     'use strict';
 
     angular.module('mu', ['music', 'vk']);
 
-})(angular)
+})();

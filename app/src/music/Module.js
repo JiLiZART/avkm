@@ -1,4 +1,4 @@
-(function(){
+(function(angular){
     'use strict';
 
     angular.module('music', [ 
@@ -8,4 +8,4 @@
         'com.2fdevs.videogular.plugins.controls'
     ]);
 
-})();
+})(angular);

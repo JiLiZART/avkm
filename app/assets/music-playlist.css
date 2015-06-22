@@ -5,3 +5,9 @@
 .music-playlist__content {
   padding: 40px;
 }
+.music-playlist__table-row {
+  border: none;
+}
+.music-playlist__table-row_active {
+  background-color: #dfe2e9;
+}

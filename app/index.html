@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Angular Material - Starter App</title>
+    <title>VK Музыка</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Roboto:400,500,700,400italic'>
-    <link rel="stylesheet" href="./vendor/videogular-themes-default/videogular.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <!-- build:css assets/dist.css -->
     <link rel="stylesheet" href="./vendor/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="./vendor/videogular-themes-default/videogular.css"/>
     <link rel="stylesheet" href="./vendor/font-awesome/css/font-awesome.css"/>
     <link rel="stylesheet" href="assets/app.css"/>
     <link rel="stylesheet" href="assets/music-bar.css"/>
     <link rel="stylesheet" href="assets/music-albums.css"/>
     <link rel="stylesheet" href="assets/music-playlist.css"/>
+    <!-- endbuild -->
     <style type="text/css">
         /**
          * Hide when Angular is not yet loaded and initialized
@@ -60,16 +62,24 @@
 
                     <vg-controls>
                         <div class="music-bar__panel">
+                            <div class="music-bar__brand">
+                                <i class="fa fa-vk music-bar__brand-icon"></i> Музыка
+                            </div>
                             <div class="music-bar__controls" ng-if="mc.currentSource.length">
                                 <vg-play-pause-button></vg-play-pause-button>
                             </div>
 
-                            <div class="music-bar__user">
-                                <button type="button"
-                                        class="btn btn-default music-bar__user-logout"
-                                        ng-click="mc.logout()">Выход</button>
+                            <div class="music-bar__right">
+                                <div class="music-bar__logout"
+                                        ng-click="mc.logout()"><i class="fa fa-sign-out"></i> Выход</div>
 
-                                <div class="music-bar__user-name">
+                                <a class="music-bar__fork"
+                                   href="https://github.com/JiLiZART/angular-vk-music"
+                                   target="_blank">
+                                    <i class="fa fa-github"></i>
+                                </a>
+
+                                <div class="music-bar__username">
                                     {{ mc.username }}
                                 </div>
 
@@ -79,7 +89,7 @@
                                     </div>
                                 </form>
 
-                                <vg-volume class="music-bar__volume" ng-if="mc.currentSource.length">
+                                <vg-volume clangular-vk-musicass="music-bar__volume" ng-if="mc.currentSource.length">
                                     <vg-mute-button></vg-mute-button>
                                     <volume-horizontal-bar></volume-horizontal-bar>
                                 </vg-volume>
@@ -110,7 +120,7 @@
                 <button type="button"
                         class="btn btn-default btn-lg music__login-button"
                         ng-click="mc.login()"
-                        ng-if="mc.isGuest">Войти через ВКонтакте</button>
+                        ng-if="mc.isGuest">Войти <i class="fa fa-vk"></i></button>
             </section>
 
             <section class="row">
@@ -142,7 +152,7 @@
                                 </thead>
                                 <tbody>
                                 <tr class="music-playlist__table-row"
-                                    ng-class="{'music__audio-item active': index == mc.currentPosition}"
+                                    ng-class="{'music-playlist__table-row_active': index == mc.currentPosition}"
                                     ng-click="mc.playByPosition(index, $event)"
                                     ng-repeat="(index, audio) in mc.audios">
 
@@ -162,6 +172,7 @@
     </div>
 </div>
 
+<!-- build:js assets/dist.js -->
 <script src="./vendor/angular/angular.js"></script>
 <script src="./vendor/angular-animate/angular-animate.js"></script>
 <script src="./vendor/angular-aria/angular-aria.js"></script>
@@ -177,6 +188,7 @@
 <script src="./src/music/MusicService.js"></script>
 <script src="./src/music/VolumeDirective.js"></script>
 <script src="./src/app.js"></script>
+<!-- endbuild -->
 
 <div id="vk_api_transport"></div>
 </body>

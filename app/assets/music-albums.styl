@@ -9,6 +9,7 @@ $ctx = music-albums
 	border-right 1px solid #dddfe3
 
 	&__item
+		position relative
 		padding 0 30px
 		height 40px
 		line-height 40px
@@ -22,7 +23,6 @@ $ctx = music-albums
 		&_active
 			background-color #dfe2e9
 
-
 	&__item-title
 		position relative
 		font-size 14px
@@ -30,6 +30,10 @@ $ctx = music-albums
 		margin-right 40px
 
 	&__item-count
+		position absolute 
+		top 0 
+		right 0 
+		margin-right 20px 
 		font-size 12px
 		background #ccc
 		border-radius 4px

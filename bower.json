@@ -1,8 +1,8 @@
 {
-  "name": "angular-material-starter",
-  "description": "A starter project for AngularJS Material",
+  "name": "vk-music-angular",
+  "description": "VKontakte music sample app build on top of angular",
   "version": "0.0.2",
-  "homepage": "https://github.com/angular/material-start",
+  "homepage": "https://github.com/JiLiZART/angular-vk-music.git",
   "license": "MIT",
   "private": true,
   "dependencies": {
@@ -12,7 +12,7 @@
     "angular-material": "^0.9.0",
     "angular-sanitize": "~1.4.1",
     "videogular": "~1.2.2",
-    "videogular-themes-default": "~1.2.2",
+    "videogular-themes-default": "git@github.com:JiLiZART/bower-videogular-themes-default.git#master",
     "font-awesome": "~4.3.0",
     "bootstrap": "~3.3.5"
   },

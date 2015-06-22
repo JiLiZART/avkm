@@ -6,15 +6,32 @@
   border-right: 1px solid #dddfe3;
 }
 .music-albums__item {
+  position: relative;
   padding: 0 30px;
   height: 40px;
   line-height: 40px;
   color: #444446;
   cursor: pointer;
+  overflow: hidden;
 }
 .music-albums__item:hover {
   background-color: rgba(223,226,233,0.5);
 }
 .music-albums__item_active {
   background-color: #dfe2e9;
+}
+.music-albums__item-title {
+  position: relative;
+  font-size: 14px;
+  white-space: nowrap;
+  margin-right: 40px;
+}
+.music-albums__item-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 20px;
+  font-size: 12px;
+  background: #ccc;
+  border-radius: 4px;
 }

@@ -1,4 +1,4 @@
-(function() {
+(function(angular) {
     "use strict";
 
     angular.module('music')
@@ -86,4 +86,4 @@
         }]
     );
 
-})()
+})(angular);
