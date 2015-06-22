@@ -77,7 +77,9 @@
 
                                 <form class="navbar-form music-bar__search" role="search">
                                     <div class="form-group">
-                                        <input type="text" class="form-control music-bar__search-input" placeholder="Search">
+                                        <input type="text"
+                                               class="form-control music-bar__search-input"
+                                               placeholder="Поиск">
                                     </div>
                                 </form>
 
@@ -136,10 +138,10 @@
                             <table class="table music-playlist__table">
                                 <thead>
                                 <tr>
-                                    <th>Название</th>
-                                    <th>Исполнитель</th>
-                                    <th>Длительность</th>
-                                    <th>Жанр</th>
+                                    <th class="music-playlist__table-head">Название</th>
+                                    <th class="music-playlist__table-head">Исполнитель</th>
+                                    <th class="music-playlist__table-head">Длительность</th>
+                                    <th class="music-playlist__table-head">Жанр</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -148,7 +150,12 @@
                                     ng-click="mc.playByPosition(index, $event)"
                                     ng-repeat="(index, audio) in mc.audios">
 
-                                    <td>{{ audio.title }}</td>
+                                    <td>
+                                        <span class="music-playlist__title-icon">
+                                            <i ng-class="{true:'fa fa-pause', false:'fa fa-play'}[index == mc.currentPosition]"></i>
+                                        </span>
+                                        {{ audio.title }}
+                                    </td>
                                     <td>{{ audio.artist }}</td>
                                     <td>{{ audio.time }}</td>
                                     <td>{{ audio.genre }}</td>

@@ -43732,8 +43732,8 @@ return Snap;
         this.currentPosition = null;
         this.currentState = null;
 
-        this.onPlayerReady = function (PlayerAPI) {
-            self.playerAPI = PlayerAPI;
+        this.onPlayerReady = function (API) {
+            self.playerAPI = API;
         };
 
         this.onPlayerComplete = function() {
@@ -43749,19 +43749,24 @@ return Snap;
         };
 
         this.playByPosition = function(index) {
-            self.playerAPI.stop();
-            self.currentPosition = index;
-            self.currentSource = [self.audios[index]];
-            self.currentAudio = self.audios[index];
-            $timeout(self.playerAPI.play.bind(self.playerAPI), 100);
-        };
+            if (self.currentPosition === index) {
+                if (self.playerAPI.currentState === 'play') {
+                    self.playerAPI.pause();
+                }
 
-        this.playAudio = function () {
-            this.playByPosition(self.currentPosition);
+                if (self.playerAPI.currentState === 'pause') {
+                    self.playerAPI.play();
+                }
+            } else {
+                self.playerAPI.stop();
+                self.currentPosition = index;
+                self.currentSource = [self.audios[index]];
+                self.currentAudio = self.audios[index];
+                $timeout(self.playerAPI.play.bind(self.playerAPI), 100);
+            }
         };
 
         this.playGroup = function (audios, name, $event) {
-            self.currentPosition = 0;
             self.audiosName = name;
             self.audios = audios.map(function(audio) {
                 return {
@@ -43775,7 +43780,7 @@ return Snap;
                 };
             });
 
-            this.playByPosition(self.currentPosition);
+            this.playByPosition(0);
         };
 
         function loadFromAll() {

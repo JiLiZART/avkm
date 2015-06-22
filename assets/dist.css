@@ -6537,8 +6537,9 @@ html
 }.music-bar__fork,
 .music-bar__logout,
 .music-bar__username
-{
-    float: right;margin-right: 20px;
+{float: right;
+
+    margin-right: 20px;
 }.music-bar__download
 {font-size: 16px;
 
@@ -6598,9 +6599,27 @@ html
 }.music-bar__search-input
 {
     color: #d9e2ec;border-color: #4b6d94;background-color: #4b6d94;
+}.music-bar__search-input::-moz-placeholder
+{opacity: 1;
+    color: #d9e2ec;
+}.music-bar__search-input:-ms-input-placeholder
+{
+    color: #d9e2ec;
+}.music-bar__search-input::-webkit-input-placeholder
+{
+    color: #d9e2ec;
 }.music-bar__search-input:focus
 {
     color: #2b2f33;background-color: #fff;
+}.music-bar__search-input:focus::-moz-placeholder
+{opacity: 1;
+    color: #2b2f33;
+}.music-bar__search-input:focus:-ms-input-placeholder
+{
+    color: #2b2f33;
+}.music-bar__search-input:focus::-webkit-input-placeholder
+{
+    color: #2b2f33;
 }.music-bar__volume
 {
     float: right;
@@ -6609,11 +6628,19 @@ html
     right: 0;width: 50%;padding-right: 10px;
 }.music-bar__fork
 {
-    line-height: 50px;color: #fff;
-}.music-bar__logout,
-.music-bar__username
+    font-size: 24px;line-height: 50px;color: #fff;
+}.music-bar__fork:hover
+{
+    color: rgba(255,255,255,.5);
+}.music-bar__username
 {
     line-height: 50px;
+}.music-bar__logout
+{
+    line-height: 50px;cursor: pointer;color: #fff;
+}.music-bar__logout:hover
+{
+    color: rgba(255,255,255,.5);
 }.music-bar vg-controls .controls-container
 {
     background-color: transparent;
@@ -6661,22 +6688,29 @@ html
 
     position: relative;margin-right: 40px;white-space: nowrap;
 }.music-albums__item-count
-{font-size: 12px;
+{font-size: 12px;line-height: 20px;
 
-    position: absolute;top: 0;right: 0;margin-right: 20px;border-radius: 4px;background: #ccc;
+    position: absolute;top: 0;right: 0;margin-top: 10px;margin-right: 20px;padding: 0 5px;color: #fff;border-radius: 4px;background: #ccc;
 }.music-playlist__title
 {font-size: 18px;
 
     padding: 22px 40px;
+}.music-playlist__title-icon
+{
+    margin-right: 20px;
 }.music-playlist__content
 {
     padding: 40px;
 }.music-playlist__table-row
-{
+{cursor: pointer;
+
     border: none;
 }.music-playlist__table-row_active
 {
     background-color: #dfe2e9;
+}.music-playlist .music-playlist__table-head
+{
+    border-bottom: none;
 }@media screen and (-webkit-min-device-pixel-ratio:0)
 {
     input[type=date].form-control,
