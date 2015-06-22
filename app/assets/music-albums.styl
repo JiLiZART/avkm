@@ -1,0 +1,35 @@
+
+$ctx = music-albums
+
+.{$ctx}
+	min-width 250px
+	width 100%
+	min-height 100%
+	background-color #f1f2f4
+	border-right 1px solid #dddfe3
+
+	&__item
+		padding 0 30px
+		height 40px
+		line-height 40px
+		color #444446
+		cursor pointer
+		overflow hidden
+
+		&:hover
+			background-color rgba(#dfe2e9, 0.5)
+
+		&_active
+			background-color #dfe2e9
+
+
+	&__item-title
+		position relative
+		font-size 14px
+		white-space nowrap
+		margin-right 40px
+
+	&__item-count
+		font-size 12px
+		background #ccc
+		border-radius 4px

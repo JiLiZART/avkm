@@ -1,0 +1,20 @@
+.music-albums {
+  min-width: 250px;
+  width: 100%;
+  min-height: 100%;
+  background-color: #f1f2f4;
+  border-right: 1px solid #dddfe3;
+}
+.music-albums__item {
+  padding: 0 30px;
+  height: 40px;
+  line-height: 40px;
+  color: #444446;
+  cursor: pointer;
+}
+.music-albums__item:hover {
+  background-color: rgba(223,226,233,0.5);
+}
+.music-albums__item_active {
+  background-color: #dfe2e9;
+}

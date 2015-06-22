@@ -1,0 +1,22 @@
+{
+  "name": "angular-material-starter",
+  "description": "A starter project for AngularJS Material",
+  "version": "0.0.2",
+  "homepage": "https://github.com/angular/material-start",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "^1.4.x",
+    "angular-animate": "^1.4.x",
+    "angular-aria": "^1.4.x",
+    "angular-material": "^0.9.0",
+    "angular-sanitize": "~1.4.1",
+    "videogular": "~1.2.2",
+    "videogular-themes-default": "~1.2.2",
+    "font-awesome": "~4.3.0",
+    "bootstrap": "~3.3.5"
+  },
+  "devDependencies": {
+    "angular-material": "~0.9.4"
+  }
+}

@@ -1,0 +1,161 @@
+
+$ctx = music-bar
+
+.{$ctx}
+	width 100%
+	height 72px
+
+	position fixed
+	z-index 990
+	top 0
+	border-bottom 1px solid darker(#ccc, 20%)
+
+	&__player
+		height 50px
+		color #FFF
+		background-color #567CA4
+
+	&__panel
+		height 50px
+
+	&__timeline
+		margin-right 40px
+		position relative
+		height 22px
+		background-color #4B6D94
+
+	&__download
+		float right
+		width 40px
+		height 22px
+		text-align center
+		font-size 16px
+		background-color #4B6D94
+
+	&__download-link
+		color #fff
+		display inline-block
+		padding-top 2px
+
+	&__timeline-scrub-bar
+		display table
+		width 100%
+
+		[role=slider]
+			margin-top 0
+			margin-bottom 0
+			height 22px
+			background #4B6D94
+
+	&__time-current
+		height 22px
+		position absolute
+		color #666
+		left 0
+
+	&__time-left
+		position absolute
+		top 0
+		right 0
+		height 22px
+		display block
+
+	&__track-name
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		left 0
+		text-align center
+		height 22px
+		line-height 22px
+
+	&__controls
+		position absolute
+		display table
+		left 0
+		height 50px
+		padding-left 10px
+
+	& vg-controls .controls-container
+		background-color transparent
+
+	& vg-volume
+		width 200px
+		text-align left
+
+		&:before
+			content ''
+			display inline-block
+			vertical-align middle
+			height 100%
+
+	& vg-mute-button
+		display inline-block
+		vertical-align middle
+
+	& volume-horizontal-bar
+		display inline-block
+		position relative
+		height 50px
+		vertical-align middle
+
+		.horizontalVolumeBar
+			height 100%
+			width 100%
+			background-color #ccc
+			display block
+			position absolute
+
+		.volumeBackground
+			height 10px
+			width 140px
+			left 0
+			top 20px
+			background-color #4B6D94
+			position absolute
+
+		.volumeValue
+			width 100%
+			height 10px
+			background-color #FFFFFF
+			position absolute
+
+		.volumeClickArea
+			width 100%
+			height 20px
+			position absolute
+
+
+	&__search
+		float right
+
+	&__search-input
+		color #D9E2EC
+		background-color #4B6D94
+		border-color #4B6D94
+
+		&:focus
+			color #2B2F33
+			background-color #fff
+
+	&__volume
+		float right
+
+	&__user
+		position absolute
+		right 0
+		width 50%
+		height 50px
+		padding-right 10px
+
+	&__user-name
+		float right
+		line-height 50px
+		margin-right 10px
+
+	&__user-logout
+		margin 8px 0
+		float right
+
+
