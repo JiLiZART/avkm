@@ -30,8 +30,12 @@
   position: absolute;
   top: 0;
   right: 0;
+  margin-top: 10px;
   margin-right: 20px;
+  padding: 0 5px;
   font-size: 12px;
+  line-height: 20px;
+  color: #fff;
   background: #ccc;
   border-radius: 4px;
 }

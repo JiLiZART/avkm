@@ -101,9 +101,29 @@
   background-color: #4b6d94;
   border-color: #4b6d94;
 }
+.music-bar__search-input::-moz-placeholder {
+  color: #d9e2ec;
+  opacity: 1;
+}
+.music-bar__search-input:-ms-input-placeholder {
+  color: #d9e2ec;
+}
+.music-bar__search-input::-webkit-input-placeholder {
+  color: #d9e2ec;
+}
 .music-bar__search-input:focus {
   color: #2b2f33;
   background-color: #fff;
+}
+.music-bar__search-input:focus::-moz-placeholder {
+  color: #2b2f33;
+  opacity: 1;
+}
+.music-bar__search-input:focus:-ms-input-placeholder {
+  color: #2b2f33;
+}
+.music-bar__search-input:focus::-webkit-input-placeholder {
+  color: #2b2f33;
 }
 .music-bar__volume {
   float: right;
@@ -116,10 +136,14 @@
   padding-right: 10px;
 }
 .music-bar__fork {
-  float: right;
-  line-height: 50px;
   margin-right: 20px;
+  float: right;
+  font-size: 24px;
+  line-height: 50px;
   color: #fff;
+}
+.music-bar__fork:hover {
+  color: rgba(255,255,255,0.5);
 }
 .music-bar__username {
   float: right;
@@ -127,9 +151,14 @@
   margin-right: 20px;
 }
 .music-bar__logout {
+  margin-right: 20px;
   line-height: 50px;
   float: right;
-  margin-right: 20px;
+  cursor: pointer;
+  color: #fff;
+}
+.music-bar__logout:hover {
+  color: rgba(255,255,255,0.5);
 }
 .music-bar vg-controls .controls-container {
   background-color: transparent;

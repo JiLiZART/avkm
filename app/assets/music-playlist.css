@@ -2,12 +2,19 @@
   padding: 22px 40px;
   font-size: 18px;
 }
+.music-playlist__title-icon {
+  margin-right: 20px;
+}
 .music-playlist__content {
   padding: 40px;
 }
 .music-playlist__table-row {
   border: none;
+  cursor: pointer;
 }
 .music-playlist__table-row_active {
   background-color: #dfe2e9;
+}
+.music-playlist .music-playlist__table-head {
+  border-bottom: none;
 }

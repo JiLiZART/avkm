@@ -104,9 +104,29 @@ $ctx = music-bar
 		background-color #4B6D94
 		border-color #4B6D94
 
+		&::-moz-placeholder
+			color #D9E2EC
+			opacity 1 
+
+		&:-ms-input-placeholder
+			color #D9E2EC
+
+		&::-webkit-input-placeholder
+			color #D9E2EC
+
 		&:focus
 			color #2B2F33
 			background-color #fff
+
+			&::-moz-placeholder
+				color #2B2F33
+				opacity 1
+
+			&:-ms-input-placeholder
+				color #2B2F33
+
+			&::-webkit-input-placeholder
+				color #2B2F33
 
 	&__volume
 		float right
@@ -119,10 +139,14 @@ $ctx = music-bar
 		padding-right 10px
 
 	&__fork
-		float right
-		line-height 50px
 		margin-right 20px
+		float right
+		font-size 24px
+		line-height 50px
 		color #fff
+
+		&:hover
+			color rgba(#fff, 0.5)
 
 	&__username
 		float right
@@ -130,9 +154,14 @@ $ctx = music-bar
 		margin-right 20px
 
 	&__logout
+		margin-right 20px
 		line-height 50px
 		float right
-		margin-right 20px
+		cursor pointer
+		color #fff
+
+		&:hover
+			color rgba(#fff, 0.5)
 
 	& vg-controls .controls-container
 		background-color transparent

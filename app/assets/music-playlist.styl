@@ -1,4 +1,3 @@
-
 $ctx = music-playlist
 
 .{$ctx}
@@ -6,11 +5,18 @@ $ctx = music-playlist
 		padding 22px 40px
 		font-size 18px
 
+	&__title-icon
+		margin-right 20px
+
 	&__content
 		padding 40px
 
 	&__table-row
 		border none
+		cursor pointer
 
 		&_active
 			background-color #dfe2e9
+
+	& &__table-head
+		border-bottom none
