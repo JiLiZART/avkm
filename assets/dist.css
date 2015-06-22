@@ -6411,6 +6411,9 @@ videogular vg-ima-ads
 .music__menu-open::before
 {
     content: '';
+}@font-face
+{
+    font-family: videogular;font-weight: 400;font-style: normal;src: url(../fonts/videogular.eot);src: url(../fonts/videogular.eot?#iefix) format('embedded-opentype'),url(../fonts/videogular.woff) format('woff'),url(../fonts/videogular.ttf) format('truetype'),url(../fonts/videogular.svg#videogular) format('svg');
 }body,
 html
 {
@@ -6512,15 +6515,6 @@ html
 {-webkit-transition: opacity .3s                                                                        ;transition: opacity .3s;-webkit-transform: translate3d(0,0,0);transform: translate3d(0,0,0);
 
     opacity: 1;
-}.music__album-list
-{
-    margin-right: -10px;
-}.music__album-item
-{
-    display: inline-block;width: 125px;margin-right: 10px;vertical-align: top;
-}.music__album-item-title
-{
-    font-size: 15px;
 }.music-bar
 {position: fixed;z-index: 990;top: 0;
 
