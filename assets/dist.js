@@ -43524,6 +43524,7 @@ return Snap;
 
     var APP_ID = '4966083';
     var API_VERSION = '5.34';
+    var MAX_COUNT = 6000;
 
     angular.module('vk')
         .service('VKAPI', ['$q', VKService]);
@@ -43613,15 +43614,47 @@ return Snap;
             },
 
             api: function (method, settings) {
-                return $q(function (resolve, reject) {
-                    VK.Api.call(method, angular.extend(versionOptions, settings), function (data) {
-                        if (data.response) {
-                            resolve(data.response);
-                        } else {
-                            reject(data.error);
+                var params = angular.extend(versionOptions, {
+                    offset: 0,
+                    count: MAX_COUNT
+                }, settings);
+
+                /**
+                 * Inject 'next' function to paginate
+                 * @param res
+                 * @returns {*}
+                 */
+                function injectNext(res) {
+                    var count = res.count,
+                        len = res.items && res.items.length,
+                        nextOffset;
+
+                    if (count && len && (params.offset + len < count)) {
+                        nextOffset = params.offset + len;
+
+                        if (nextOffset) {
+                            params.offset = nextOffset;
+                            res.next = apiCall.bind(null, method, params);
                         }
+                    }
+
+                    return res;
+                }
+
+                function apiCall(method, params) {
+                    return $q(function (resolve, reject) {
+                        VK.Api.call(method, params, function (data) {
+                            if (data.response) {
+                                resolve(injectNext(data.response));
+                            } else {
+                                console.error(method + ':' + data.error.error_msg);
+                                reject(data.error);
+                            }
+                        });
                     });
-                });
+                }
+
+                return apiCall(method, params);
             },
 
             inject: function () {
@@ -43675,7 +43708,6 @@ return Snap;
 
         this.isGuest = true;
         this.username = '';
-        this.items = [];
         this.menuOpened = false;
 
         var morphEl = document.getElementById('morph-shape'),
@@ -43685,22 +43717,24 @@ return Snap;
             pathOpen = morphEl.getAttribute('data-morph-open'),
             isAnimating = false;
 
-        this.menuToggle = function() {
+        this.menuToggle = function () {
 
             if (self.menuOpened) {
-                setTimeout( function() {
+                setTimeout(function () {
                     // reset path
-                    path.attr( 'd', initialPath );
+                    path.attr('d', initialPath);
                     isAnimating = false;
-                }, 300 );
+                }, 300);
             } else {
-                path.animate( { 'path' : pathOpen }, 400, mina.easeinout, function() { isAnimating = false; } );
+                path.animate({'path': pathOpen}, 400, mina.easeinout, function () {
+                    isAnimating = false;
+                });
             }
 
-            self.menuOpened = ! self.menuOpened;
+            self.menuOpened = !self.menuOpened;
         };
 
-        this.menuClose = function() {
+        this.menuClose = function () {
             self.menuOpened = false;
         };
 
@@ -43708,26 +43742,29 @@ return Snap;
             .then(function () {
                 self.username = musicService.userFullName();
                 self.isGuest = musicService.isGuest();
-                loadFromAll();
+                loadAll();
             });
 
         this.login = function () {
             musicService.login().then(function (session) {
                 self.username = musicService.userFullName();
                 self.isGuest = musicService.isGuest();
-                loadFromAll();
+                loadAll();
             });
         };
 
         this.logout = function () {
-            musicService.logout().then(function(data) {
+            musicService.logout().then(function (data) {
                 window.location.reload();
             });
         };
 
-        this.audios = [];
-        this.audiosName = null;
+        this.audios = {};
+        this.albums = {};
+
+        this.currentAlbumID = null;
         this.currentSource = [];
+        this.currentAudios = [];
         this.currentAudio = null;
         this.currentPosition = null;
         this.currentState = null;
@@ -43736,57 +43773,98 @@ return Snap;
             self.playerAPI = API;
         };
 
-        this.onPlayerComplete = function() {
+        this.onPlayerComplete = function () {
             self.isCompleted = true;
 
             self.currentPosition++;
 
-            if (self.currentPosition >= self.audios.length) {
+            if (self.currentPosition >= self.currentAudios.length) {
                 self.currentPosition = 0;
             }
 
             self.playByPosition(self.currentPosition);
         };
 
-        this.playByPosition = function(index) {
+        this.playByPosition = function (index) {
             if (self.currentPosition === index) {
-                if (self.playerAPI.currentState === 'play') {
-                    self.playerAPI.pause();
+                switch (self.playerAPI.currentState) {
+                    case 'play':
+                        self.playerAPI.pause();
+                        break;
+                    case 'stop':
+                        self.playerAPI.play();
+                        break;
+                    case 'pause':
+                        self.playerAPI.play();
+                        break;
                 }
 
-                if (self.playerAPI.currentState === 'pause') {
-                    self.playerAPI.play();
-                }
+                self.currentState = self.playerAPI.currentState;
             } else {
                 self.playerAPI.stop();
                 self.currentPosition = index;
-                self.currentSource = [self.audios[index]];
-                self.currentAudio = self.audios[index];
-                $timeout(self.playerAPI.play.bind(self.playerAPI), 100);
+                self.currentSource = [self.currentAudios[index]];
+                self.currentAudio = self.currentAudios[index];
+                $timeout(function() {
+                    self.playerAPI.play();
+                    self.currentState = self.playerAPI.currentState;
+                }.bind(self), 100);
             }
         };
 
-        this.playGroup = function (audios, name, $event) {
-            self.audiosName = name;
-            self.audios = audios.map(function(audio) {
+        this.playGroup = function (audios, albumID, $event) {
+            self.setCurrentAlbum(albumID);
+            self.setCurrentAudios(audios);
+            self.currentPosition = null;
+            self.playByPosition(0);
+        };
+
+        this.getAlbumName = function (id) {
+            return self.albums[id];
+        };
+
+        this.setCurrentAlbum = function (id) {
+            self.currentAlbumID = id;
+        };
+
+        this.setCurrentAudios = function (audios) {
+            self.currentAudios = audios.map(function (audio) {
                 return {
                     title: audio.title,
                     artist: audio.artist,
                     url: audio.url,
                     genre: audio.genre,
+                    album: self.albums[audio.album_id],
                     time: audio.time,
                     src: $sce.trustAsResourceUrl(audio.url),
                     type: "audio/mpeg"
                 };
             });
 
-            this.playByPosition(0);
+            return self.currentAudios;
         };
 
-        function loadFromAll() {
-            musicService.loadFromAll().then(function() {
-                self.items = musicService.getArtists();
+        function loadAll() {
+            return $q.all([
+                musicService.loadUserAlbums(),
+                musicService.loadUserAudio(),
+                musicService.loadWallAudio(),
+                musicService.loadRecommendations(),
+                musicService.loadPopular()
+            ]).then(function (results) {
+                self.albums = sortObject(results[0]);
+                self.audios = results[1];
+
+                self.setCurrentAlbum(0);
+                self.setCurrentAudios(self.audios[0]);
             });
+        }
+
+        function sortObject(object) {
+            return Object.keys(object).sort().reduce(function (result, key) {
+                result[key] = object[key];
+                return result;
+            }, {});
         }
     }
 
@@ -43834,54 +43912,96 @@ return Snap;
         18: 'Other'
     };
 
-    function getGenre(id) {
-        return GENRES[id];
-    }
-
     /**
      * @constructor
      */
     function MusicService($q, VKAPI) {
+        var albums = {
+            0: 'Все',
+            1: 'Рекомендации',
+            2: 'Стена',
+            3: 'Популярное'
+
+        };
+        var audios = {
+            0: [],
+            1: [],
+            2: [],
+            3: []
+        };
         var artists = {};
+        var recommendations = [];
+        var wall = [];
+        var popular = [];
 
-        function addByArtist(items) {
-            items.forEach(function (item) {
-                var key = toTitleCase(item.artist.trim().toLowerCase());
-
-                artists[key] = artists[key] || [];
-                artists[key].push(transformAudioFile(item));
-            });
+        function getGenre(id) {
+            return GENRES[id];
         }
 
-        function getAudioFromWallPost(wallPost) {
+        function getAlbum(id) {
+            return albums[id];
+        }
+
+        function addAlbum(album) {
+            albums[album.id] = album.title;
+        }
+
+        function addPopular(audio) {
+            audios[3].push(transformAudio(audio));
+            popular.push(transformAudio(audio));
+        }
+
+        function addWallAudio(audio) {
+            audios[2].push(transformAudio(audio));
+            wall.push(transformAudio(audio));
+        }
+
+        function addRecommendation(audio) {
+            audios[1].push(transformAudio(audio));
+            recommendations.push(transformAudio(audio));
+        }
+
+        function addAudio(audio) {
+            if (audio.album_id) {
+                audios[audio.album_id] = audios[audio.album_id] || [];
+                audios[audio.album_id].push(transformAudio(audio));
+            }
+
+            audios[0].push(transformAudio(audio));
+        }
+
+        function addArtist(audio) {
+            var key = toTitleCase(audio.artist.trim().toLowerCase());
+
+            artists[key] = artists[key] || [];
+            artists[key].push(transformAudio(audio));
+        }
+
+        function fromWallPost(wallPost) {
             var audios = [];
 
             if (Array.isArray(wallPost.attachments) && wallPost.attachments.length) {
-                audios = audios.concat(getAudioFromAttachments(wallPost.attachments));
+                audios = audios.concat(fromAttachments(wallPost.attachments));
             }
 
             if (Array.isArray(wallPost.copy_history) && wallPost.copy_history.length &&
                 Array.isArray(wallPost.copy_history[0].attachments) && wallPost.copy_history[0].attachments.length
             ) {
-                audios = audios.concat(getAudioFromAttachments(wallPost.copy_history[0].attachments));
+                audios = audios.concat(fromAttachments(wallPost.copy_history[0].attachments));
             }
 
             return audios;
         }
 
-        function getAudioFromAttachments(attachments) {
+        function fromAttachments(attachments) {
             if (attachments && attachments.length) {
-                return attachments.filter(isAttachmentAudio).map(getAudioFileFromAttachment);
+                return attachments.filter(isAttachmentAudio).map(fromAttachment);
             }
 
             return [];
         }
 
-        function isAttachmentAudio(attachment) {
-            return attachment.type === "audio";
-        }
-
-        function getAudioFileFromAttachment(attachment) {
+        function fromAttachment(attachment) {
             var audio = attachment.audio;
 
             audio.time = toMinutes(audio.duration);
@@ -43890,9 +44010,14 @@ return Snap;
             return audio;
         }
 
-        function transformAudioFile(audio) {
+        function isAttachmentAudio(attachment) {
+            return attachment.type === "audio";
+        }
+
+        function transformAudio(audio) {
             audio.time = toMinutes(audio.duration);
             audio.genre = getGenre(audio.genre_id);
+            audio.album = getAlbum(audio.album_id);
             return audio;
         }
 
@@ -43924,60 +44049,111 @@ return Snap;
                 return VKAPI.logout();
             },
 
-            getArtists: function() {
+            getArtists: function () {
                 return artists;
             },
 
-            loadFromPopular: function () {
-
+            getPopular: function() {
+                return popular;
             },
 
-            loadFromRecommendations: function () {
-
+            getWallAudio: function() {
+                return wall;
             },
 
-            loadFromUser: function () {
-                return VKAPI.api('audio.get', {
+            getAlbums: function () {
+                return albums;
+            },
+
+            getAudios: function () {
+                return audios;
+            },
+
+            getRecommendations: function () {
+                return recommendations;
+            },
+
+            loadUserAlbums: function () {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 100
+                };
+
+                return VKAPI.api('audio.getAlbums', params).then(function (data) {
+                    data.items.forEach(function (album) {
+                        addAlbum(album);
+                    });
+
+                    return methods.getAlbums();
+                });
+            },
+
+            loadUserAudio: function (albumID) {
+                var params = {
+                    owner_id: VKAPI.getUser().id
+                };
+
+                if (typeof albumID !== 'undefined') {
+                    params.album_id = albumID;
+                }
+
+                return VKAPI.api('audio.get', params).then(function (data) {
+                    data.items.forEach(function (audio) {
+                        addAudio(audio);
+                    });
+
+                    return methods.getAudios();
+                });
+            },
+
+            loadRecommendations: function (shuffle) {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 1000
+                };
+
+                if (typeof shuffle !== 'undefined') {
+                    params.shuffle = shuffle;
+                }
+
+                return VKAPI.api('audio.getRecommendations', params).then(function (data) {
+                    data.items.forEach(function (audio) {
+                        addRecommendation(audio);
+                    });
+
+                    return methods.getRecommendations();
+                });
+            },
+
+            loadPopular: function () {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 1000
+                };
+
+                return VKAPI.api('audio.getPopular', params).then(function (data) {
+                    data.forEach(function (audio) {
+                        addPopular(audio);
+                    });
+
+                    return methods.getPopular();
+                });
+            },
+
+            loadWallAudio: function () {
+                return VKAPI.api('wall.get', {
                     owner_id: VKAPI.getUser().id
                 }).then(function (data) {
-                    var result = [];
 
-                    if (data.items && data.items.length) {
-                        addByArtist(data.items);
-                        result = data.items;
-                    }
-
-                    return result;
-                });
-            },
-
-            loadFromWall: function () {
-                return VKAPI.api('audio.get', {
-                    owner_id: VKAPI.getUser().id,
-                    extended: 1
-                }).then(function(data) {
-                    var result = [];
-
-                    if (data.items && data.items.length) {
-                        data.items
-                            .map(getAudioFromWallPost)
-                            .forEach(function (item) {
-                                result = result.concat(item);
+                    if (data.items) {
+                        data.items.map(fromWallPost).forEach(function(wallAudios) {
+                            wallAudios.forEach(function(audio) {
+                                addWallAudio(audio);
                             });
-
-                        addByArtist(result);
+                        });
                     }
 
-                    return result;
-                });
-            },
-
-            loadFromAll: function() {
-                return $q.all([
-                    methods.loadFromWall(),
-                    methods.loadFromUser()
-                ]).then(function (results) {
-                    return [].concat(results[0], results[1]);
+                    return methods.getWallAudio();
                 });
             }
         };

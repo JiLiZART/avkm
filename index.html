@@ -8,7 +8,8 @@
     <meta name="description" content="">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet'
+          type='text/css'>
     <link rel="stylesheet" href="assets/dist.css">
     <style type="text/css">
         /**
@@ -36,7 +37,8 @@
         </nav>
         <button class="music__menu-close" id="close-button" ng-click="mc.menuToggle()">Close Menu</button>
         <div class="morph-shape" id="morph-shape" data-morph-open="M-1,0h101c0,0,0-1,0,395c0,404,0,405,0,405H-1V0z">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 800" preserveAspectRatio="none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 800"
+                 preserveAspectRatio="none">
                 <path d="M-1,0h101c0,0-97.833,153.603-97.833,396.167C2.167,627.579,100,800,100,800H-1V0z"/>
             </svg>
         </div>
@@ -63,7 +65,8 @@
 
                             <div class="music-bar__right">
                                 <div class="music-bar__logout"
-                                        ng-click="mc.logout()"><i class="fa fa-sign-out"></i> Выход</div>
+                                     ng-click="mc.logout()"><i class="fa fa-sign-out"></i> Выход
+                                </div>
 
                                 <a class="music-bar__fork"
                                    href="https://github.com/JiLiZART/angular-vk-music"
@@ -79,31 +82,35 @@
                                     <div class="form-group">
                                         <input type="text"
                                                class="form-control music-bar__search-input"
+                                               ng-model="mc.query"
                                                placeholder="Поиск">
                                     </div>
                                 </form>
 
-                                <vg-volume clangular-vk-musicass="music-bar__volume" ng-if="mc.currentSource.length">
+                                <vg-volume class="music-bar__volume" ng-if="mc.currentSource.length">
                                     <vg-mute-button></vg-mute-button>
                                     <volume-horizontal-bar></volume-horizontal-bar>
                                 </vg-volume>
                             </div>
                         </div>
                         <div class="music-bar__download">
-                            <a ng-href="{{ mc.currentAudio.url }}" ng-if="mc.currentAudio" target="_blank" title="Скачать" class="music-bar__download-link">
+                            <a ng-href="{{ mc.currentAudio.url }}" ng-if="mc.currentAudio" target="_blank"
+                               title="Скачать" class="music-bar__download-link">
                                 <i class="glyphicon glyphicon-cloud"></i>
                             </a>
                         </div>
                         <div class="music-bar__timeline">
                             <span ng-if="mc.currentSource.length">
-                                <vg-time-display class="music-bar__time-current">{{ currentTime | date:'mm:ss' }}</vg-time-display>
+                                <vg-time-display class="music-bar__time-current">{{ currentTime | date:'mm:ss' }}
+                                </vg-time-display>
                                 <vg-scrub-bar class="music-bar__timeline-scrub-bar">
                                     <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
                                     <div class="music-bar__track-name">
                                         {{ mc.currentAudio.artist }}&nbsp;&mdash;&nbsp;{{ mc.currentAudio.title }}
                                     </div>
                                 </vg-scrub-bar>
-                                <vg-time-display class="music-bar__time-left">{{ timeLeft | date:'mm:ss' }}</vg-time-display>
+                                <vg-time-display class="music-bar__time-left">{{ timeLeft | date:'mm:ss' }}
+                                </vg-time-display>
                             </span>
                         </div>
                     </vg-controls>
@@ -117,55 +124,57 @@
                         ng-if="mc.isGuest">Войти <i class="fa fa-vk"></i></button>
             </section>
 
-            <section class="row">
-                <aside class="music__content-aside col-md-4 col-lg-3">
-                    <div ng-if="!mc.isGuest" class="music-albums">
-                        <div class="music-albums__item" ng-repeat="(artist, audios) in mc.items" ng-click="mc.playGroup(audios, artist, $event)">
-                            <div class="music-albums__item-title">
-                                {{ artist }}
-                            </div>
-                            <div class="music-albums__item-count" ng-if="audios.length > 1">
-                                {{ audios.length }}
-                            </div>
+            <aside class="music__content-aside">
+                <div ng-if="!mc.isGuest" class="music-albums">
+                    <div class="music-albums__item" ng-repeat="(album, audios) in mc.audios"
+                         ng-class="{'music-albums__item_active':album==mc.currentAlbumID}"
+                         ng-click="mc.playGroup(audios, album, $event)">
+                        <div class="music-albums__item-title">
+                            {{ mc.getAlbumName(album) }}
+                        </div>
+                        <div class="music-albums__item-count" ng-if="audios.length > 1">
+                            {{ audios.length }}
                         </div>
                     </div>
-                </aside>
-                <section role="main" class="music__content-main col-md-8 col-lg-9">
-                    <div ng-if="mc.audios.length" class="music-playlist">
-                        <div class="music-playlist__title">{{ mc.audiosName }}</div>
-                        <div class="music-playlist__content">
+                </div>
+            </aside>
+            <section role="main" class="music__content-main">
+                <div ng-if="mc.currentAudios.length" class="music-playlist">
+                    <div class="music-playlist__title">{{ mc.getAlbumName(mc.currentAlbumID) }}</div>
+                    <div class="music-playlist__content">
 
-                            <table class="table music-playlist__table">
-                                <thead>
-                                <tr>
-                                    <th class="music-playlist__table-head">Название</th>
-                                    <th class="music-playlist__table-head">Исполнитель</th>
-                                    <th class="music-playlist__table-head">Длительность</th>
-                                    <th class="music-playlist__table-head">Жанр</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr class="music-playlist__table-row"
-                                    ng-class="{'music-playlist__table-row_active': index == mc.currentPosition}"
-                                    ng-click="mc.playByPosition(index, $event)"
-                                    ng-repeat="(index, audio) in mc.audios">
+                        <table class="table music-playlist__table">
+                            <thead>
+                            <tr>
+                                <th class="music-playlist__table-head">Название</th>
+                                <th class="music-playlist__table-head">Исполнитель</th>
+                                <th class="music-playlist__table-head">Длительность</th>
+                                <th class="music-playlist__table-head">Жанр</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="music-playlist__table-row"
+                                ng-class="{'music-playlist__table-row_active': index == mc.currentPosition}"
+                                ng-click="mc.playByPosition(index, $event)"
+                                ng-repeat="(index, audio) in mc.currentAudios | filter:{$:mc.query}">
 
-                                    <td>
-                                        <span class="music-playlist__title-icon">
-                                            <i ng-class="{true:'fa fa-pause', false:'fa fa-play'}[index == mc.currentPosition]"></i>
-                                        </span>
-                                        {{ audio.title }}
-                                    </td>
-                                    <td>{{ audio.artist }}</td>
-                                    <td>{{ audio.time }}</td>
-                                    <td>{{ audio.genre }}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                <td>
+                                    <span class="music-playlist__title-icon">
+                                        <i ng-class="{'play':'fa fa-pause','pause':'fa fa-play','stop':'fa fa-play'}[mc.currentState]" ng-if="index == mc.currentPosition"></i>
+                                        <i class="fa fa-play" ng-if="index !== mc.currentPosition"></i>
+                                    </span>
+                                    {{ audio.title }}
+                                </td>
+                                <td>{{ audio.artist }}</td>
+                                <td>{{ audio.time }}</td>
+                                <td>{{ audio.genre }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
+                </div>
             </section>
+
 
         </div>
     </div>
