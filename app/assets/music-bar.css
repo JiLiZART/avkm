@@ -189,12 +189,12 @@
   display: inline-block;
   position: relative;
   height: 50px;
+  width: 150px;
   vertical-align: middle;
 }
 .music-bar volume-horizontal-bar .horizontalVolumeBar {
   height: 100%;
   width: 100%;
-  background-color: #ccc;
   display: block;
   position: absolute;
 }

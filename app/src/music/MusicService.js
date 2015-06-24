@@ -44,12 +44,23 @@
      * @constructor
      */
     function MusicService($q, VKAPI) {
-        var artists = {};
-        var albums = {};
-        var recommendations = [];
-        var audios = {
-            0: []
+        var albums = {
+            0: 'Все',
+            1: 'Рекомендации',
+            2: 'Стена',
+            3: 'Популярное'
+
         };
+        var audios = {
+            0: [],
+            1: [],
+            2: [],
+            3: []
+        };
+        var artists = {};
+        var recommendations = [];
+        var wall = [];
+        var popular = [];
 
         function getGenre(id) {
             return GENRES[id];
@@ -63,7 +74,18 @@
             albums[album.id] = album.title;
         }
 
+        function addPopular(audio) {
+            audios[3].push(transformAudio(audio));
+            popular.push(transformAudio(audio));
+        }
+
+        function addWallAudio(audio) {
+            audios[2].push(transformAudio(audio));
+            wall.push(transformAudio(audio));
+        }
+
         function addRecommendation(audio) {
+            audios[1].push(transformAudio(audio));
             recommendations.push(transformAudio(audio));
         }
 
@@ -159,6 +181,14 @@
                 return artists;
             },
 
+            getPopular: function() {
+                return popular;
+            },
+
+            getWallAudio: function() {
+                return wall;
+            },
+
             getAlbums: function () {
                 return albums;
             },
@@ -180,11 +210,6 @@
                 return VKAPI.api('audio.getAlbums', params).then(function (data) {
                     data.items.forEach(function (album) {
                         addAlbum(album);
-                    });
-
-                    addAlbum({
-                        id: 0,
-                        title: 'Все'
                     });
 
                     return methods.getAlbums();
@@ -228,6 +253,21 @@
                 });
             },
 
+            loadPopular: function () {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 1000
+                };
+
+                return VKAPI.api('audio.getPopular', params).then(function (data) {
+                    data.forEach(function (audio) {
+                        addPopular(audio);
+                    });
+
+                    return methods.getPopular();
+                });
+            },
+
             loadWallAudio: function () {
                 return VKAPI.api('wall.get', {
                     owner_id: VKAPI.getUser().id
@@ -236,12 +276,12 @@
                     if (data.items) {
                         data.items.map(fromWallPost).forEach(function(wallAudios) {
                             wallAudios.forEach(function(audio) {
-                                addArtist(audio);
+                                addWallAudio(audio);
                             });
                         });
                     }
 
-                    return methods.getArtists();
+                    return methods.getWallAudio();
                 });
             }
         };

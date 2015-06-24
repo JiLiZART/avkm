@@ -70,8 +70,6 @@
 
         this.audios = {};
         this.albums = {};
-        this.wall = [];
-        this.recommendations = {};
 
         this.currentAlbumID = null;
         this.currentSource = [];
@@ -160,12 +158,11 @@
                 musicService.loadUserAlbums(),
                 musicService.loadUserAudio(),
                 musicService.loadWallAudio(),
-                musicService.loadRecommendations()
+                musicService.loadRecommendations(),
+                musicService.loadPopular()
             ]).then(function (results) {
                 self.albums = sortObject(results[0]);
                 self.audios = results[1];
-                self.wall = results[2];
-                self.recommendations = results[3];
 
                 self.setCurrentAlbum(0);
                 self.setCurrentAudios(self.audios[0]);
