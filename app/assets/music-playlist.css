@@ -6,7 +6,7 @@
   margin-right: 20px;
 }
 .music-playlist__content {
-  padding: 40px;
+  padding: 0 40px 40px;
 }
 .music-playlist__table-row {
   border: none;

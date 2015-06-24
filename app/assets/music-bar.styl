@@ -166,11 +166,15 @@ $ctx = music-bar
 	& vg-controls .controls-container
 		background-color transparent
 
+	& vg-play-pause-button
+		font-size 24px
+
 	& vg-scrub-bar-current-time
 		background-color rgba(#fff, 0.3)
 
 	& vg-volume
-		width 200px
+		width auto
+		font-size 24px
 		text-align left
 
 		&:before
@@ -182,6 +186,7 @@ $ctx = music-bar
 	& vg-mute-button
 		display inline-block
 		vertical-align middle
+		width auto
 
 	& volume-horizontal-bar
 		display inline-block

@@ -3,6 +3,7 @@
 
     var APP_ID = '4966083';
     var API_VERSION = '5.34';
+    var MAX_COUNT = 6000;
 
     angular.module('vk')
         .service('VKAPI', ['$q', VKService]);
@@ -92,15 +93,47 @@
             },
 
             api: function (method, settings) {
-                return $q(function (resolve, reject) {
-                    VK.Api.call(method, angular.extend(versionOptions, settings), function (data) {
-                        if (data.response) {
-                            resolve(data.response);
-                        } else {
-                            reject(data.error);
+                var params = angular.extend(versionOptions, {
+                    offset: 0,
+                    count: MAX_COUNT
+                }, settings);
+
+                /**
+                 * Inject 'next' function to paginate
+                 * @param res
+                 * @returns {*}
+                 */
+                function injectNext(res) {
+                    var count = res.count,
+                        len = res.items && res.items.length,
+                        nextOffset;
+
+                    if (count && len && (params.offset + len < count)) {
+                        nextOffset = params.offset + len;
+
+                        if (nextOffset) {
+                            params.offset = nextOffset;
+                            res.next = apiCall.bind(null, method, params);
                         }
+                    }
+
+                    return res;
+                }
+
+                function apiCall(method, params) {
+                    return $q(function (resolve, reject) {
+                        VK.Api.call(method, params, function (data) {
+                            if (data.response) {
+                                resolve(injectNext(data.response));
+                            } else {
+                                console.error(method + ':' + data.error.error_msg);
+                                reject(data.error);
+                            }
+                        });
                     });
-                });
+                }
+
+                return apiCall(method, params);
             },
 
             inject: function () {

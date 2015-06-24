@@ -85,13 +85,23 @@ body,
 }
 
 .music__content-aside {
-    padding-left: 0;
-    padding-right: 0;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    width: 25%;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
 }
 
 .music__content-main {
-    padding-left: 0;
-    padding-right: 0;
+    position: fixed;
+    top: 72px;
+    right: 0;
+    width: 75%;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
 }
 
 /* Menu Button */

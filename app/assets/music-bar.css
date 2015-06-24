@@ -163,11 +163,15 @@
 .music-bar vg-controls .controls-container {
   background-color: transparent;
 }
+.music-bar vg-play-pause-button {
+  font-size: 24px;
+}
 .music-bar vg-scrub-bar-current-time {
   background-color: rgba(255,255,255,0.3);
 }
 .music-bar vg-volume {
-  width: 200px;
+  width: auto;
+  font-size: 24px;
   text-align: left;
 }
 .music-bar vg-volume:before {
@@ -179,6 +183,7 @@
 .music-bar vg-mute-button {
   display: inline-block;
   vertical-align: middle;
+  width: auto;
 }
 .music-bar volume-horizontal-bar {
   display: inline-block;
