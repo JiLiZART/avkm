@@ -125,13 +125,6 @@
                 </videogular>
             </header>
 
-            <section class="music__login" ng-if="mc.isGuest">
-                <button type="button"
-                        class="btn btn-default btn-lg music__login-button"
-                        ng-click="mc.login()"
-                        ng-if="mc.isGuest">Войти <i class="fa fa-vk"></i></button>
-            </section>
-
             <aside class="music__content-aside">
                 <div ng-if="!mc.isGuest" class="music-albums">
                     <div class="music-albums__item" ng-repeat="(album, audios) in mc.audios"
@@ -183,7 +176,12 @@
                 </div>
             </section>
 
-
+            <section class="music__login" ng-if="mc.isGuest">
+                <button type="button"
+                        class="btn btn-default btn-lg music__login-button"
+                        ng-click="mc.login()"
+                        ng-if="mc.isGuest">Войти <i class="fa fa-vk"></i></button>
+            </section>
         </div>
     </div>
 </div>
