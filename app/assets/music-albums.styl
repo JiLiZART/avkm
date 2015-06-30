@@ -2,13 +2,11 @@
 $ctx = music-albums
 
 .{$ctx}
-	min-width 250px
-	width 100%
-	min-height 100%
 	background-color #f1f2f4
 	border-right 1px solid #dddfe3
 
 	&__item
+		display block
 		position relative
 		padding 0 30px
 		height 40px
@@ -18,12 +16,14 @@ $ctx = music-albums
 		overflow hidden
 
 		&:hover
+			text-decoration none
 			background-color rgba(#dfe2e9, 0.5)
 
 		&_active
 			background-color #dfe2e9
 
 	&__item-title
+		display block
 		position relative
 		font-size 14px
 		white-space nowrap

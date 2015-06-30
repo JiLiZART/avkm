@@ -14,7 +14,10 @@
     "videogular": "~1.2.2",
     "videogular-themes-default": "git@github.com:JiLiZART/bower-videogular-themes-default.git#master",
     "font-awesome": "~4.3.0",
-    "bootstrap": "~3.3.5"
+    "bootstrap": "~3.3.5",
+    "quick-ng-repeat": "~0.0.1",
+    "angular-route": "~1.4.1",
+    "lodash": "~3.9.3"
   },
   "devDependencies": {
     "angular-material": "~0.9.4"

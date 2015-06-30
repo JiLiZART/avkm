@@ -1,0 +1,73 @@
+<videogular vg-player-ready="bar.onPlayerReady($API)"
+            vg-complete="bar.onPlayerComplete()"
+            vg-update-state="bar.onStateUpdate($state)"
+            class="music-bar__player">
+    <vg-media vg-src="bar.source" vg-type="audio"></vg-media>
+
+    <vg-controls>
+        <div class="music-bar__panel">
+            <div class="music-bar__brand">
+                <i class="fa fa-vk music-bar__brand-icon"></i> Музыка
+            </div>
+            <div class="music-bar__controls" ng-if="bar.source.length">
+                <div class="music-bar__prev-button" ng-click="playPrev()">
+                    <i class="fa fa-backward"></i>
+                </div>
+                <vg-play-pause-button></vg-play-pause-button>
+                <div class="music-bar__next-button" ng-click="playNext()">
+                    <i class="fa fa-forward"></i>
+                </div>
+            </div>
+
+            <div class="music-bar__right">
+                <div class="music-bar__logout"
+                     ng-click="logout()"><i class="fa fa-sign-out"></i> Выход
+                </div>
+
+                <a class="music-bar__fork"
+                   href="https://github.com/JiLiZART/angular-vk-music"
+                   target="_blank">
+                    <i class="fa fa-github"></i>
+                </a>
+
+                <div class="music-bar__username">
+                    {{ getUserName() }}
+                </div>
+
+                <form class="navbar-form music-bar__search" role="search">
+                    <div class="form-group">
+                        <input type="text"
+                               class="form-control music-bar__search-input"
+                               ng-model="app.query"
+                               placeholder="Поиск">
+                    </div>
+                </form>
+
+                <vg-volume class="music-bar__volume" ng-if="bar.source.length">
+                    <vg-mute-button vg-template="views/vg-mute-button.html"></vg-mute-button>
+                    <volume-horizontal-bar></volume-horizontal-bar>
+                </vg-volume>
+            </div>
+        </div>
+        <div class="music-bar__download">
+            <a ng-href="{{ bar.currentAudio.url }}" ng-if="bar.currentAudio" target="_blank"
+               title="Скачать" class="music-bar__download-link">
+                <i class="fa fa-cloud-download"></i>
+            </a>
+        </div>
+        <div class="music-bar__timeline">
+            <span ng-if="bar.source.length">
+                <vg-time-display class="music-bar__time-current">{{ currentTime | date:'mm:ss' }}
+                </vg-time-display>
+                <vg-scrub-bar class="music-bar__timeline-scrub-bar">
+                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                    <div class="music-bar__track-name">
+                        {{ bar.currentAudio.artist }}&nbsp;&mdash;&nbsp;{{ bar.currentAudio.title }}
+                    </div>
+                </vg-scrub-bar>
+                <vg-time-display class="music-bar__time-left">{{ timeLeft | date:'mm:ss' }}
+                </vg-time-display>
+            </span>
+        </div>
+    </vg-controls>
+</videogular>

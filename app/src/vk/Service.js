@@ -1,4 +1,4 @@
-(function (window, angular) {
+(function (window, angular, _) {
     'use strict';
 
     var APP_ID = '4966083';
@@ -20,6 +20,7 @@
             VK.init({apiId: APP_ID});
 
             methods.access = VK.access;
+            methods.apiCall = VK.Api.call; //_.debounce(VK.Api.call, 300);
 
             defer.resolve();
         };
@@ -27,11 +28,11 @@
         var methods = {
             access: null,
 
-            getSession: function() {
+            getSession: function () {
                 return session;
             },
 
-            getUser: function() {
+            getUser: function () {
                 return user;
             },
 
@@ -42,21 +43,20 @@
             loadUser: function () {
                 return methods.api('users.get', {
                     user_ids: session.mid
-                }).then(function(data) {
-                    if (data[0]) {
-                        user = data[0];
-                        return data[0];
-                    }
+                }).then(function (data) {
+                    user = data[0];
+                    return user;
                 });
             },
 
-            getLoginStatus: function() {
+            getLoginStatus: function () {
                 return $q(function (resolve, reject) {
                     VK.Auth.getLoginStatus(function (data) {
-                        if (data.session) {
-                            session = data.session;
-                            methods.loadUser().then(function() {
-                                resolve(data.session);
+                        session = data.session;
+
+                        if (session) {
+                            methods.loadUser().then(function () {
+                                resolve(user);
                             });
                         } else {
                             reject(data.error);
@@ -66,7 +66,7 @@
             },
 
             isGuest: function () {
-                return typeof session === 'undefined';
+                return typeof user === 'undefined';
             },
 
             login: function (access) {
@@ -74,7 +74,7 @@
                     VK.Auth.login(function (data) {
                         if (data.status === "connected") {
                             session = data.session;
-                            methods.loadUser().then(function() {
+                            methods.loadUser().then(function () {
                                 resolve(data.session);
                             });
                         } else {
@@ -94,8 +94,8 @@
 
             api: function (method, settings) {
                 var params = angular.extend(versionOptions, {
-                    offset: 0,
-                    count: MAX_COUNT
+                    offset: 0
+                    //count: MAX_COUNT
                 }, settings);
 
                 /**
@@ -122,9 +122,9 @@
 
                 function apiCall(method, params) {
                     return $q(function (resolve, reject) {
-                        VK.Api.call(method, params, function (data) {
+                        methods.apiCall(method, params, function (data) {
                             if (data.response) {
-                                resolve(injectNext(data.response));
+                                resolve(data.response);
                             } else {
                                 console.error(method + ':' + data.error.error_msg);
                                 reject(data.error);
@@ -154,4 +154,4 @@
         return methods;
     }
 
-})(window, angular);
+})(window, angular, _);

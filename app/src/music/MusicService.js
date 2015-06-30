@@ -44,21 +44,23 @@
      * @constructor
      */
     function MusicService($q, VKAPI) {
-        var albums = {
+        var ALBUM = {
+            ALL: 0,
+            RECOMEND: 1,
+            WALL: 2,
+            POPULAR: 3
+        };
+        var defaultAlbums = {
             0: 'Все',
             1: 'Рекомендации',
             2: 'Стена',
             3: 'Популярное'
-
         };
-        var audios = {
-            0: [],
-            1: [],
-            2: [],
-            3: []
-        };
-        var artists = {};
+        var all = {};
+        var albums = [];
+        var artists;
         var recommendations = [];
+        var audios = [];
         var wall = [];
         var popular = [];
 
@@ -67,35 +69,41 @@
         }
 
         function getAlbum(id) {
-            return albums[id];
+            return id ? albums[id] : '';
         }
 
         function addAlbum(album) {
             albums[album.id] = album.title;
         }
 
+        function pushToAll(album, audio) {
+            all[album] = all[album] || [];
+            all[album].push(transformAudio(audio));
+        }
+
         function addPopular(audio) {
-            audios[3].push(transformAudio(audio));
+            pushToAll(ALBUM.POPULAR, audio);
             popular.push(transformAudio(audio));
         }
 
         function addWallAudio(audio) {
-            audios[2].push(transformAudio(audio));
+            pushToAll(ALBUM.WALL, audio);
             wall.push(transformAudio(audio));
         }
 
         function addRecommendation(audio) {
-            audios[1].push(transformAudio(audio));
+            pushToAll(ALBUM.RECOMEND, audio);
             recommendations.push(transformAudio(audio));
         }
 
         function addAudio(audio) {
             if (audio.album_id) {
-                audios[audio.album_id] = audios[audio.album_id] || [];
-                audios[audio.album_id].push(transformAudio(audio));
+                pushToAll(audio.album_id, audio);
             }
 
-            audios[0].push(transformAudio(audio));
+            pushToAll(ALBUM.ALL, audio);
+
+            audios.push(transformAudio(audio));
         }
 
         function addArtist(audio) {
@@ -139,7 +147,7 @@
         }
 
         function isAttachmentAudio(attachment) {
-            return attachment.type === "audio";
+            return attachment.type === 'audio';
         }
 
         function transformAudio(audio) {
@@ -149,19 +157,30 @@
             return audio;
         }
 
+        function sortObject(object) {
+            return Object.keys(object).sort().reduce(function (result, key) {
+                result[key] = object[key];
+                return result;
+            }, {});
+        }
+
         var methods = {
             init: function () {
                 return VKAPI.inject();
             },
 
-            auth: function () {
+            getUser: function () {
                 return methods.init()
                     .then(function () {
+                        if (VKAPI.getUser()) {
+                            return VKAPI.getUser();
+                        }
+
                         return VKAPI.getLoginStatus();
                     });
             },
 
-            userFullName: function () {
+            getUserName: function () {
                 return VKAPI.getUserFullName();
             },
 
@@ -181,44 +200,99 @@
                 return artists;
             },
 
-            getPopular: function() {
-                return popular;
-            },
-
-            getWallAudio: function() {
-                return wall;
-            },
-
             getAlbums: function () {
-                return albums;
+                return $q(function (resolve, reject) {
+                    if (albums.length) {
+                        resolve(albums);
+                    } else {
+                        methods.loadAlbums().then(function () {
+                            albums = sortObject(angular.extend(albums, defaultAlbums));
+                            resolve(albums);
+                        }, reject);
+                    }
+                });
             },
 
-            getAudios: function () {
-                return audios;
-            },
-
-            getRecommendations: function () {
-                return recommendations;
-            },
-
-            loadUserAlbums: function () {
+            loadAlbums: function () {
                 var params = {
                     owner_id: VKAPI.getUser().id,
                     count: 100
                 };
 
                 return VKAPI.api('audio.getAlbums', params).then(function (data) {
-                    data.items.forEach(function (album) {
-                        addAlbum(album);
-                    });
-
-                    return methods.getAlbums();
+                    return data.items.forEach(addAlbum);
                 });
             },
 
-            loadUserAudio: function (albumID) {
+            getAll: function () {
+                return $q(function (resolve, reject) {
+                    resolve(all);
+                });
+            },
+
+            getPopular: function () {
+                return $q(function (resolve, reject) {
+                    if (popular.length) {
+                        resolve(popular);
+                    } else {
+                        methods.loadPopular().then(function () {
+                            resolve(popular);
+                        }, reject);
+                    }
+                });
+            },
+
+            loadPopular: function () {
                 var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 1000
+                };
+
+                return VKAPI.api('audio.getPopular', params).then(function (data) {
+                    return data.forEach(addPopular);
+                });
+            },
+
+            getWall: function () {
+                return $q(function (resolve, reject) {
+                    if (wall.length) {
+                        resolve(wall);
+                    } else {
+                        methods.loadWall().then(function () {
+                            resolve(wall);
+                        }, reject);
+                    }
+                });
+            },
+
+            loadWall: function () {
+                return VKAPI.api('wall.get', {
                     owner_id: VKAPI.getUser().id
+                }).then(function (data) {
+                    return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
+                        wallAudios.forEach(addWallAudio);
+                    });
+                });
+            },
+
+            getAudios: function () {
+                return $q(function (resolve, reject) {
+                    if (audios.length) {
+                        console.log('audios', audios.length);
+                        resolve(audios);
+                    } else {
+                        methods.loadAudios().then(function () {
+                            console.log('audios', audios.length);
+                            resolve(audios);
+                        }, reject);
+                    }
+                });
+            },
+
+            loadAudios: function (albumID) {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    count: 6000
                 };
 
                 if (typeof albumID !== 'undefined') {
@@ -226,11 +300,19 @@
                 }
 
                 return VKAPI.api('audio.get', params).then(function (data) {
-                    data.items.forEach(function (audio) {
-                        addAudio(audio);
-                    });
+                    return data.items.forEach(addAudio);
+                });
+            },
 
-                    return methods.getAudios();
+            getRecommendations: function () {
+                return $q(function (resolve, reject) {
+                    if (recommendations.length) {
+                        resolve(recommendations);
+                    } else {
+                        methods.loadRecommendations().then(function () {
+                            resolve(recommendations);
+                        }, reject);
+                    }
                 });
             },
 
@@ -245,43 +327,7 @@
                 }
 
                 return VKAPI.api('audio.getRecommendations', params).then(function (data) {
-                    data.items.forEach(function (audio) {
-                        addRecommendation(audio);
-                    });
-
-                    return methods.getRecommendations();
-                });
-            },
-
-            loadPopular: function () {
-                var params = {
-                    owner_id: VKAPI.getUser().id,
-                    count: 1000
-                };
-
-                return VKAPI.api('audio.getPopular', params).then(function (data) {
-                    data.forEach(function (audio) {
-                        addPopular(audio);
-                    });
-
-                    return methods.getPopular();
-                });
-            },
-
-            loadWallAudio: function () {
-                return VKAPI.api('wall.get', {
-                    owner_id: VKAPI.getUser().id
-                }).then(function (data) {
-
-                    if (data.items) {
-                        data.items.map(fromWallPost).forEach(function(wallAudios) {
-                            wallAudios.forEach(function(audio) {
-                                addWallAudio(audio);
-                            });
-                        });
-                    }
-
-                    return methods.getWallAudio();
+                    return data.items.forEach(addRecommendation);
                 });
             }
         };

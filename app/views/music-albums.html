@@ -1,0 +1,11 @@
+<a class="music-albums__item" ng-repeat="(id, audios) in app.audios"
+   ng-class="{'music-albums__item_active':id==app.albumID}"
+   ng-href="/album/{{id}}">
+            <span class="music-albums__item-title">
+                <!--ng-click="app.playGroup(audios, album, $event)"-->
+                {{ getAlbum(id) }}
+            </span>
+            <span class="music-albums__item-count" ng-if="audios.length > 1">
+                {{ audios.length }}
+            </span>
+</a>

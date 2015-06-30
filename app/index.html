@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-cloak ng-app="app" ng-controller="AppController as app">
 <head>
-    <title>VK Музыка</title>
-
+    <title>VK Музыка {{ app.title }}</title>
+    <base href="/">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
@@ -28,160 +28,12 @@
         }
     </style>
 </head>
+<body>
 
-<body ng-cloak ng-app="mu" ng-controller="MusicController as mc">
-
-<div class="music" ng-class="{'music_with_menu':mc.menuOpened}">
-
-    <div class="music__menu-container">
-        <nav class="music__menu">
-            <div class="music__menu-list">
-                <a href="#"><i class="fa fa-fw fa-star-o"></i><span>Все вместе</span></a>
-                <a href="#"><i class="fa fa-fw fa-bell-o"></i><span>Мои</span></a>
-                <a href="#"><i class="fa fa-fw fa-envelope-o"></i><span>Со стены</span></a>
-                <a href="#"><i class="fa fa-fw fa-comment-o"></i><span>Из групп</span></a>
-                <a href="#"><i class="fa fa-fw fa-bar-chart-o"></i><span>От друзей</span></a>
-            </div>
-        </nav>
-        <button class="music__menu-close" id="close-button" ng-click="mc.menuToggle()">Close Menu</button>
-        <div class="morph-shape" id="morph-shape" data-morph-open="M-1,0h101c0,0,0-1,0,395c0,404,0,405,0,405H-1V0z">
-            <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 800"
-                 preserveAspectRatio="none">
-                <path d="M-1,0h101c0,0-97.833,153.603-97.833,396.167C2.167,627.579,100,800,100,800H-1V0z"/>
-            </svg>
-        </div>
-    </div>
-    <!--<button class="music__menu-open" id="open-button" ng-click="mc.menuToggle()">Open Menu</button>-->
-
-    <div class="music__content-container" ng-click="mc.menuClose()">
+<div class="music" ng-class="{'music_with_menu':app.menuOpened}">
+    <div class="music__content-container">
         <div class="music__content">
-            <header class="music-bar" ng-if="!mc.isGuest">
-                <videogular
-                        vg-player-ready="mc.onPlayerReady($API)"
-                        vg-complete="mc.onPlayerComplete()"
-                        class="music-bar__player">
-                    <vg-media vg-src="mc.currentSource" vg-type="audio"></vg-media>
-
-                    <vg-controls>
-                        <div class="music-bar__panel">
-                            <div class="music-bar__brand">
-                                <i class="fa fa-vk music-bar__brand-icon"></i> Музыка
-                            </div>
-                            <div class="music-bar__controls" ng-if="mc.currentSource.length">
-                                <vg-play-pause-button></vg-play-pause-button>
-                            </div>
-
-                            <div class="music-bar__right">
-                                <div class="music-bar__logout"
-                                     ng-click="mc.logout()"><i class="fa fa-sign-out"></i> Выход
-                                </div>
-
-                                <a class="music-bar__fork"
-                                   href="https://github.com/JiLiZART/angular-vk-music"
-                                   target="_blank">
-                                    <i class="fa fa-github"></i>
-                                </a>
-
-                                <div class="music-bar__username">
-                                    {{ mc.username }}
-                                </div>
-
-                                <form class="navbar-form music-bar__search" role="search">
-                                    <div class="form-group">
-                                        <input type="text"
-                                               class="form-control music-bar__search-input"
-                                               ng-model="mc.query"
-                                               placeholder="Поиск">
-                                    </div>
-                                </form>
-
-                                <vg-volume class="music-bar__volume" ng-if="mc.currentSource.length">
-                                    <vg-mute-button></vg-mute-button>
-                                    <volume-horizontal-bar></volume-horizontal-bar>
-                                </vg-volume>
-                            </div>
-                        </div>
-                        <div class="music-bar__download">
-                            <a ng-href="{{ mc.currentAudio.url }}" ng-if="mc.currentAudio" target="_blank"
-                               title="Скачать" class="music-bar__download-link">
-                                <i class="fa fa-cloud-download"></i>
-                            </a>
-                        </div>
-                        <div class="music-bar__timeline">
-                            <span ng-if="mc.currentSource.length">
-                                <vg-time-display class="music-bar__time-current">{{ currentTime | date:'mm:ss' }}
-                                </vg-time-display>
-                                <vg-scrub-bar class="music-bar__timeline-scrub-bar">
-                                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                                    <div class="music-bar__track-name">
-                                        {{ mc.currentAudio.artist }}&nbsp;&mdash;&nbsp;{{ mc.currentAudio.title }}
-                                    </div>
-                                </vg-scrub-bar>
-                                <vg-time-display class="music-bar__time-left">{{ timeLeft | date:'mm:ss' }}
-                                </vg-time-display>
-                            </span>
-                        </div>
-                    </vg-controls>
-                </videogular>
-            </header>
-
-            <aside class="music__content-aside">
-                <div ng-if="!mc.isGuest" class="music-albums">
-                    <div class="music-albums__item" ng-repeat="(album, audios) in mc.audios"
-                         ng-class="{'music-albums__item_active':album==mc.currentAlbumID}"
-                         ng-click="mc.playGroup(audios, album, $event)">
-                        <div class="music-albums__item-title">
-                            {{ mc.getAlbumName(album) }}
-                        </div>
-                        <div class="music-albums__item-count" ng-if="audios.length > 1">
-                            {{ audios.length }}
-                        </div>
-                    </div>
-                </div>
-            </aside>
-            <section role="main" class="music__content-main">
-                <div ng-if="mc.currentAudios.length" class="music-playlist">
-                    <div class="music-playlist__title">{{ mc.getAlbumName(mc.currentAlbumID) }}</div>
-                    <div class="music-playlist__content">
-
-                        <table class="table music-playlist__table">
-                            <thead>
-                            <tr>
-                                <th class="music-playlist__table-head">Название</th>
-                                <th class="music-playlist__table-head">Исполнитель</th>
-                                <th class="music-playlist__table-head">Длительность</th>
-                                <th class="music-playlist__table-head">Жанр</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr class="music-playlist__table-row"
-                                ng-class="{'music-playlist__table-row_active': index == mc.currentPosition}"
-                                ng-click="mc.playByPosition(index, $event)"
-                                ng-repeat="(index, audio) in mc.currentAudios | filter:{$:mc.query}">
-
-                                <td>
-                                    <span class="music-playlist__title-icon">
-                                        <i ng-class="{'play':'fa fa-pause','pause':'fa fa-play','stop':'fa fa-play'}[mc.currentState]" ng-if="index == mc.currentPosition"></i>
-                                        <i class="fa fa-play" ng-if="index !== mc.currentPosition"></i>
-                                    </span>
-                                    {{ audio.title }}
-                                </td>
-                                <td>{{ audio.artist }}</td>
-                                <td>{{ audio.time }}</td>
-                                <td>{{ audio.genre }}</td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <section class="music__login" ng-if="mc.isGuest">
-                <button type="button"
-                        class="btn btn-default btn-lg music__login-button"
-                        ng-click="mc.login()"
-                        ng-if="mc.isGuest">Войти <i class="fa fa-vk"></i></button>
-            </section>
+            <div ng-view></div>
         </div>
     </div>
 </div>
@@ -191,17 +43,25 @@
 <script src="./vendor/angular-animate/angular-animate.js"></script>
 <script src="./vendor/angular-aria/angular-aria.js"></script>
 <script src="./vendor/angular-sanitize/angular-sanitize.js"></script>
+<script src="./vendor/angular-route/angular-route.js"></script>
 <script src="./vendor/videogular/videogular.js"></script>
 <script src="./vendor/videogular-controls/vg-controls.js"></script>
 <script src="./vendor/snap.svg/dist/snap.svg.js"></script>
+<script src="./vendor/lodash/lodash.js"></script>
 
 <script src="./src/vk/Module.js"></script>
 <script src="./src/vk/Service.js"></script>
+
 <script src="./src/music/Module.js"></script>
-<script src="./src/music/MusicController.js"></script>
 <script src="./src/music/MusicService.js"></script>
+<script src="./src/music/BarDirective.js"></script>
 <script src="./src/music/VolumeDirective.js"></script>
-<script src="./src/app.js"></script>
+<script src="./src/music/AlbumsDirective.js"></script>
+<script src="./src/music/PlaylistDirective.js"></script>
+<script src="./src/music/AlbumController.js"></script>
+
+<script src="./src/app/Module.js"></script>
+<script src="./src/app/AppController.js"></script>
 <!-- endbuild -->
 
 <div id="vk_api_transport"></div>

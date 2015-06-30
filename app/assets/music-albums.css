@@ -1,11 +1,9 @@
 .music-albums {
-  min-width: 250px;
-  width: 100%;
-  min-height: 100%;
   background-color: #f1f2f4;
   border-right: 1px solid #dddfe3;
 }
 .music-albums__item {
+  display: block;
   position: relative;
   padding: 0 30px;
   height: 40px;
@@ -15,12 +13,14 @@
   overflow: hidden;
 }
 .music-albums__item:hover {
+  text-decoration: none;
   background-color: rgba(223,226,233,0.5);
 }
 .music-albums__item_active {
   background-color: #dfe2e9;
 }
 .music-albums__item-title {
+  display: block;
   position: relative;
   font-size: 14px;
   white-space: nowrap;

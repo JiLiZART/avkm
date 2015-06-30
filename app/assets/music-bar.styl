@@ -96,6 +96,14 @@ $ctx = music-bar
 		left 210px
 		height 50px
 
+	&__prev-button,
+	&__next-button
+		display: table-cell;
+		width: 50px;
+		vertical-align: middle;
+		text-align: center;
+		cursor: pointer;
+
 	&__search
 		float right
 
@@ -106,7 +114,7 @@ $ctx = music-bar
 
 		&::-moz-placeholder
 			color #D9E2EC
-			opacity 1 
+			opacity 1
 
 		&:-ms-input-placeholder
 			color #D9E2EC

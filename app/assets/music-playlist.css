@@ -2,11 +2,14 @@
   padding: 22px 40px;
   font-size: 18px;
 }
-.music-playlist__title-icon {
+.music-playlist__content {
+  padding: 0 20px 20px;
+}
+.music-playlist__table-row-icon {
   margin-right: 20px;
 }
-.music-playlist__content {
-  padding: 0 40px 40px;
+.music-playlist__table-row-title {
+  font-size: 16px;
 }
 .music-playlist__table-row {
   border: none;
