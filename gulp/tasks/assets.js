@@ -14,7 +14,7 @@ var gulp = require('gulp'),
     errorHandler = require('../errorHandler'),
     paths = require('../paths');
 
-gulp.task('assets', ['fonts'], function () {
+gulp.task('assets', ['fonts', 'views'], function () {
     var assets = useref.assets();
 
     return gulp.src('app/*.html')
