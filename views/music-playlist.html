@@ -1,0 +1,32 @@
+<div class="music-playlist__title">{{ getAlbum(app.albumID) }}</div>
+<div class="music-playlist__content">
+
+    <table class="table music-playlist__table">
+        <thead>
+        <tr>
+            <th class="music-playlist__table-head">Название</th>
+            <th class="music-playlist__table-head">Исполнитель</th>
+            <th class="music-playlist__table-head">Длительность</th>
+            <th class="music-playlist__table-head">Жанр</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="music-playlist__table-row"
+            ng-class="{'music-playlist__table-row_active': index == app.position}"
+            ng-click="playByPosition(index, $event)"
+            ng-repeat="(index, audio) in app.playlist | filter:{$:app.query}">
+            <td>
+                <span class="music-playlist__table-row-icon">
+                    <i ng-class="{'play':'fa fa-pause','pause':'fa fa-play','stop':'fa fa-play'}[app.state]"
+                       ng-if="index == app.position"></i>
+                    <i class="fa fa-play" ng-if="index !== app.position"></i>
+                </span>
+                <span class="music-playlist__table-row-title">{{ audio.title }}</span>
+            </td>
+            <td>{{ audio.artist }}</td>
+            <td>{{ audio.time }}</td>
+            <td>{{ audio.genre }}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
