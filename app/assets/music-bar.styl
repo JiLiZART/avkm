@@ -139,6 +139,26 @@ $ctx = music-bar
 	&__volume
 		float right
 
+	&__repeat
+		width 50px
+		height 50px
+		float right
+		display table-cell
+		vertical-align middle
+		font-size 22px
+		text-align center
+		cursor pointer
+		opacity 0.5
+
+		&_active
+			opacity 1
+
+		&:before
+			content ''
+			display inline-block
+			vertical-align middle
+			height 100%
+
 	&__right
 		position absolute
 		right 0

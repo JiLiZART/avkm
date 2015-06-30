@@ -21,17 +21,22 @@
         self.playlist = [];
         self.position = null;
         self.state = null;
+        self.repeat = false;
 
-        $rootScope.$on('playerReady', function($event, API) {
+        $rootScope.$on('playerReady', function ($event, API) {
             self.playerAPI = API;
             $scope.playByPosition(0);
         });
 
-        $rootScope.$on('playerComplete', function($event) {
-            $scope.playNext();
+        $rootScope.$on('playerComplete', function ($event) {
+            if (self.repeat) {
+                $scope.playRepeat();
+            } else {
+                $scope.playNext();
+            }
         });
 
-        $scope.setTitle = function(title) {
+        $scope.setTitle = function (title) {
             self.title = ' | ' + title;
         };
 
@@ -42,7 +47,7 @@
             $scope.isAuthorized = !musicService.isGuest();
         };
 
-        $scope.getUserName = function() {
+        $scope.getUserName = function () {
             return self.userName;
         };
 
@@ -54,9 +59,33 @@
             self.audios = audios;
         };
 
+        $scope.getAlbum = function (id) {
+            return self.albums[id];
+        };
+
         $scope.setCurrentAlbum = function (albumID) {
             self.albumID = albumID;
             $scope.setPlaylistByAlbum(albumID);
+        };
+
+        $scope.setPlaylist = function (audios) {
+            self.position = null;
+            self.playlist = audios.map(function (audio) {
+                return {
+                    title: audio.title,
+                    artist: audio.artist,
+                    url: audio.url,
+                    genre: audio.genre,
+                    album: self.albums[audio.album_id],
+                    time: audio.time,
+                    src: $sce.trustAsResourceUrl(audio.url),
+                    type: 'audio/mpeg'
+                };
+            });
+        };
+
+        $scope.setPlaylistByAlbum = function (albumID) {
+            return $scope.setPlaylist(self.audios[albumID]);
         };
 
         $scope.logout = function () {
@@ -66,13 +95,21 @@
         };
 
         $scope.login = function () {
-            musicService.login();
+            musicService.login().then(function () {
+
+            });
+        };
+
+        $scope.repeatToggle = function () {
+            self.repeat = !self.repeat;
+        };
+
+        $scope.playRepeat = function () {
+            $scope.playByPosition(self.position);
         };
 
         $scope.playNext = function () {
             var nextPos = self.position + 1;
-
-            console.log('playNext', self.position);
 
             if (nextPos > self.playlist.length) {
                 self.position = 0;
@@ -85,8 +122,6 @@
         $scope.playPrev = function () {
             var nextPos = self.position - 1;
 
-            console.log('playNext', self.position);
-
             if (nextPos < 0) {
                 self.position = self.playlist.length;
                 nextPos = self.playlist.length;
@@ -97,7 +132,6 @@
 
         $scope.playByPosition = function (index) {
             if (self.position === index) {
-                console.log('self.position === index');
                 switch (self.playerAPI.state) {
                     case 'play':
                         $rootScope.$emit('pause');
@@ -123,30 +157,6 @@
             }
 
             return self;
-        };
-
-        $scope.getAlbum = function (id) {
-            return self.albums[id];
-        };
-
-        $scope.setPlaylist = function (audios) {
-            self.position = null;
-            self.playlist = audios.map(function (audio) {
-                return {
-                    title: audio.title,
-                    artist: audio.artist,
-                    url: audio.url,
-                    genre: audio.genre,
-                    album: self.albums[audio.album_id],
-                    time: audio.time,
-                    src: $sce.trustAsResourceUrl(audio.url),
-                    type: 'audio/mpeg'
-                };
-            });
-        };
-
-        $scope.setPlaylistByAlbum = function (albumID) {
-            return $scope.setPlaylist(self.audios[albumID]);
         };
     }
 

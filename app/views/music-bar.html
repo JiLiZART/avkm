@@ -47,6 +47,9 @@
                     <vg-mute-button vg-template="views/vg-mute-button.html"></vg-mute-button>
                     <volume-horizontal-bar></volume-horizontal-bar>
                 </vg-volume>
+                <div class="music-bar__repeat" ng-class="{true:'music-bar__repeat_active'}[app.repeat]" ng-click="repeatToggle()">
+                    <i class="fa fa-repeat"></i>
+                </div>
             </div>
         </div>
         <div class="music-bar__download">

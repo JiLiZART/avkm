@@ -2,67 +2,66 @@
     'use strict';
 
     angular.module('music')
-        .service('musicService', ['$q', 'VKAPI', MusicService]);
-
-    function toTitleCase(str) {
-        return str.replace(/\w\S*/g, function (txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        });
-    }
-
-    function toMinutes(time) {
-        var minutes = "0" + Math.floor(time / 60);
-        var seconds = "0" + (time - minutes * 60);
-        return minutes.substr(-2) + ":" + seconds.substr(-2);
-    }
-
-    var GENRES = {
-        1: 'Rock',
-        2: 'Pop',
-        3: 'Rap & Hip-Hop',
-        4: 'Easy Listening',
-        5: 'Dance & House',
-        6: 'Instrumental',
-        7: 'Metal',
-        21: 'Alternative',
-        8: 'Dubstep',
-        9: 'Jazz & Blues',
-        10: 'Drum & Bass',
-        11: 'Trance',
-        12: 'Chanson',
-        13: 'Ethnic',
-        14: 'Acoustic & Vocal',
-        15: 'Reggae',
-        16: 'Classical',
-        17: 'Indie Pop',
-        19: 'Speech',
-        22: 'Electropop & Disco',
-        18: 'Other'
-    };
+        .constant('GENRES', {
+            1: 'Rock',
+            2: 'Pop',
+            3: 'Rap & Hip-Hop',
+            4: 'Easy Listening',
+            5: 'Dance & House',
+            6: 'Instrumental',
+            7: 'Metal',
+            21: 'Alternative',
+            8: 'Dubstep',
+            9: 'Jazz & Blues',
+            10: 'Drum & Bass',
+            11: 'Trance',
+            12: 'Chanson',
+            13: 'Ethnic',
+            14: 'Acoustic & Vocal',
+            15: 'Reggae',
+            16: 'Classical',
+            17: 'Indie Pop',
+            19: 'Speech',
+            22: 'Electropop & Disco',
+            18: 'Other'
+        })
+        .service('musicService', ['$q', 'VKAPI', 'GENRES', MusicService]);
 
     /**
      * @constructor
      */
-    function MusicService($q, VKAPI) {
+    function MusicService($q, VKAPI, GENRES) {
         var ALBUM = {
-            ALL: 0,
-            RECOMEND: 1,
-            WALL: 2,
-            POPULAR: 3
-        };
-        var defaultAlbums = {
-            0: 'Все',
-            1: 'Рекомендации',
-            2: 'Стена',
-            3: 'Популярное'
-        };
-        var all = {};
-        var albums = [];
-        var artists;
-        var recommendations = [];
-        var audios = [];
-        var wall = [];
-        var popular = [];
+                ALL: 0,
+                RECOMEND: 1,
+                WALL: 2,
+                POPULAR: 3
+            },
+            defaultAlbums = {
+                0: 'Все',
+                1: 'Рекомендации',
+                2: 'Стена',
+                3: 'Популярное'
+            },
+            all = {},
+            albums = [],
+            artists = {},
+            recommendations = [],
+            audios = [],
+            wall = [],
+            popular = [];
+
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        function toMinutes(time) {
+            var minutes = "0" + Math.floor(time / 60);
+            var seconds = "0" + (time - minutes * 60);
+            return minutes.substr(-2) + ":" + seconds.substr(-2);
+        }
 
         function getGenre(id) {
             return GENRES[id];
@@ -169,6 +168,18 @@
                 return VKAPI.inject();
             },
 
+            isGuest: function () {
+                return VKAPI.isGuest();
+            },
+
+            login: function () {
+                return VKAPI.login(VKAPI.access.AUDIO);
+            },
+
+            logout: function () {
+                return VKAPI.logout();
+            },
+
             getUser: function () {
                 return methods.init()
                     .then(function () {
@@ -184,20 +195,10 @@
                 return VKAPI.getUserFullName();
             },
 
-            isGuest: function () {
-                return VKAPI.isGuest();
-            },
-
-            login: function () {
-                return VKAPI.login(VKAPI.access.AUDIO);
-            },
-
-            logout: function () {
-                return VKAPI.logout();
-            },
-
             getArtists: function () {
-                return artists;
+                return $q(function (resolve, reject) {
+                    resolve(artists);
+                });
             },
 
             getAlbums: function () {
@@ -270,19 +271,17 @@
                     owner_id: VKAPI.getUser().id
                 }).then(function (data) {
                     return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
-                        wallAudios.forEach(addWallAudio);
-                    });
+                            wallAudios.forEach(addWallAudio);
+                        });
                 });
             },
 
             getAudios: function () {
                 return $q(function (resolve, reject) {
                     if (audios.length) {
-                        console.log('audios', audios.length);
                         resolve(audios);
                     } else {
                         methods.loadAudios().then(function () {
-                            console.log('audios', audios.length);
                             resolve(audios);
                         }, reject);
                     }

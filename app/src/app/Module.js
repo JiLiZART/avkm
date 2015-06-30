@@ -36,6 +36,11 @@
                         controllerAs: 'album',
                         resolve: albumResolve
                     })
+                    .when('/login', {
+                        templateUrl: 'views/login.html',
+                        controller: 'LoginController',
+                        controllerAs: 'auth'
+                    })
                     .when('/album/:albumId', {
                         templateUrl: 'views/album.html',
                         controller: 'AlbumController',
@@ -46,5 +51,11 @@
                 // configure html5 to get links working on jsfiddle
                 $locationProvider.html5Mode(true);
             }
-        ]);
+        ]).run(['musicService', '$location', function(musicService, $location) {
+            musicService.getUser().then(function() {
+                $location.path('/album/0');
+            }, function() {
+                $location.path('/login');
+            });
+        }]);
 })(angular);

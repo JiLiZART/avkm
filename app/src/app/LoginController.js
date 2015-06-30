@@ -2,13 +2,15 @@
     'use strict';
 
     module.controller('LoginController', [
-        '$scope', 'musicService', '$sce', '$timeout', '$q',
+        '$scope', '$location', 'musicService',
         LoginController
     ]);
 
-    function LoginController($scope, musicService) {
-        this.login = function () {
-            musicService.login();
+    function LoginController($scope, $location, musicService) {
+        $scope.login = function () {
+            musicService.login().then(function () {
+                $location.path('/album/0');
+            });
         };
     }
 
