@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" ng-cloak ng-app="app" ng-controller="AppController as app">
 <head>
-    <title>VK Музыка {{ app.title }}</title>
-    <base href="/">
+    <title ng-bind="'VK Музыка' + app.title">VK Музыка</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet'
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic'
+          rel='stylesheet'
           type='text/css'>
     <!-- build:css assets/dist.css -->
     <link rel="stylesheet" href="./vendor/bootstrap/dist/css/bootstrap.css">
@@ -44,9 +44,9 @@
 <script src="./vendor/angular-aria/angular-aria.js"></script>
 <script src="./vendor/angular-sanitize/angular-sanitize.js"></script>
 <script src="./vendor/angular-route/angular-route.js"></script>
+<script src="./vendor/angular-local-storage/dist/angular-local-storage.js"></script>
 <script src="./vendor/videogular/videogular.js"></script>
 <script src="./vendor/videogular-controls/vg-controls.js"></script>
-<script src="./vendor/snap.svg/dist/snap.svg.js"></script>
 <script src="./vendor/lodash/lodash.js"></script>
 
 <script src="./src/vk/Module.js"></script>

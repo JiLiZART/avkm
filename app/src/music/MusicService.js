@@ -25,12 +25,12 @@
             22: 'Electropop & Disco',
             18: 'Other'
         })
-        .service('musicService', ['$q', 'VKAPI', 'GENRES', MusicService]);
+        .service('musicService', ['$q', 'VKAPI', 'GENRES', 'localStorageService', MusicService]);
 
     /**
      * @constructor
      */
-    function MusicService($q, VKAPI, GENRES) {
+    function MusicService($q, VKAPI, GENRES, localStorageService) {
         var ALBUM = {
                 ALL: 0,
                 RECOMEND: 1,
@@ -44,6 +44,7 @@
                 3: 'Популярное'
             },
             all = {},
+            audiosIDS = [],
             albums = [],
             artists = {},
             recommendations = [],
@@ -96,12 +97,11 @@
         }
 
         function addAudio(audio) {
-            if (audio.album_id) {
-                pushToAll(audio.album_id, audio);
-            }
+            audio.album_id && pushToAll(audio.album_id, audio);
 
             pushToAll(ALBUM.ALL, audio);
 
+            audiosIDS.push(audio.id);
             audios.push(transformAudio(audio));
         }
 
@@ -201,10 +201,18 @@
                 });
             },
 
+            getIDS: function() {
+                return $q(function (resolve, reject) {
+                    resolve(audiosIDS);
+                });
+            },
+
             getAlbums: function () {
                 return $q(function (resolve, reject) {
-                    if (albums.length) {
-                        resolve(albums);
+                    var items = albums;
+
+                    if (items && items.length) {
+                        resolve(items);
                     } else {
                         methods.loadAlbums().then(function () {
                             albums = sortObject(angular.extend(albums, defaultAlbums));
@@ -233,8 +241,10 @@
 
             getPopular: function () {
                 return $q(function (resolve, reject) {
-                    if (popular.length) {
-                        resolve(popular);
+                    var items = popular;
+
+                    if (items && items.length) {
+                        resolve(items);
                     } else {
                         methods.loadPopular().then(function () {
                             resolve(popular);
@@ -256,8 +266,10 @@
 
             getWall: function () {
                 return $q(function (resolve, reject) {
-                    if (wall.length) {
-                        resolve(wall);
+                    var items = wall;
+
+                    if (items && items.length) {
+                        resolve(items);
                     } else {
                         methods.loadWall().then(function () {
                             resolve(wall);
@@ -278,8 +290,10 @@
 
             getAudios: function () {
                 return $q(function (resolve, reject) {
-                    if (audios.length) {
-                        resolve(audios);
+                    var items = audios;
+
+                    if (items && items.length) {
+                        resolve(items);
                     } else {
                         methods.loadAudios().then(function () {
                             resolve(audios);
@@ -327,6 +341,17 @@
 
                 return VKAPI.api('audio.getRecommendations', params).then(function (data) {
                     return data.items.forEach(addRecommendation);
+                });
+            },
+
+            addAudio: function(id) {
+                var params = {
+                    owner_id: VKAPI.getUser().id,
+                    audio_id: id
+                };
+
+                return VKAPI.api('audio.add', params).then(function (data) {
+                    return data;
                 });
             }
         };

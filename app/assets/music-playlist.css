@@ -5,7 +5,12 @@
 .music-playlist__content {
   padding: 0 20px 20px;
 }
-.music-playlist__table-row-icon {
+.music-playlist__table-row-play-icon {
+  cursor: pointer;
+  margin-right: 20px;
+}
+.music-playlist__table-row-add-icon {
+  cursor: pointer;
   margin-right: 20px;
 }
 .music-playlist__table-row-title {
@@ -13,7 +18,6 @@
 }
 .music-playlist__table-row {
   border: none;
-  cursor: pointer;
 }
 .music-playlist__table-row_active {
   background-color: #dfe2e9;

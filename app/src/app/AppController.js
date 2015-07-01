@@ -2,14 +2,14 @@
     'use strict';
 
     module.controller('AppController', [
-        '$rootScope', '$scope', 'musicService', '$sce', '$timeout',
+        '$rootScope', '$scope', 'musicService', '$sce', '$timeout', '$location',
         AppController
     ]);
 
     /**
      * @constructor
      */
-    function AppController($rootScope, $scope, musicService, $sce, $timeout, $q) {
+    function AppController($rootScope, $scope, musicService, $sce, $timeout, $location) {
         var self = this;
 
         self.currentUser = null;
@@ -35,6 +35,10 @@
                 $scope.playNext();
             }
         });
+
+        $scope.url = function (path) {
+            $location.path(path);
+        };
 
         $scope.setTitle = function (title) {
             self.title = ' | ' + title;
@@ -94,10 +98,12 @@
             });
         };
 
-        $scope.login = function () {
-            musicService.login().then(function () {
+        $scope.addAudio = function (id) {
+            return musicService.addAudio(id);
+        };
 
-            });
+        $scope.isAdded = function (id) {
+            return self.audiosIDS.indexOf(id) !== -1;
         };
 
         $scope.repeatToggle = function () {

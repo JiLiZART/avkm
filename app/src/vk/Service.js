@@ -126,7 +126,7 @@
                             if (data.response) {
                                 resolve(data.response);
                             } else {
-                                console.error(method + ':' + data.error.error_msg);
+                                console.error(method + ':' + data.error.error_msg, params);
                                 reject(data.error);
                             }
                         });
