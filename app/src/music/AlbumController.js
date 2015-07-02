@@ -4,23 +4,41 @@
     var module = angular.module('music');
 
     module.controller('AlbumController', [
-        '$scope', '$routeParams', 'user', 'albums', 'audios', 'audioIDS',
-        function ($scope, $routeParams, user, albums, audios, audioIDS) {
+        '$scope', '$routeParams', 'musicService', 'ALBUM', 'user', 'albums', 'audios',
+        function ($scope, $routeParams, musicService, ALBUM, user, albums, audios) {
+            console.log('AlbumController');
             var albumID = $routeParams.albumId || 0;
 
-            //_.each(audios, function (files, album) {
-            //    audios[album] = audios[album].map(function (audio) {
-            //        audio.added = audioIDS.indexOf(audio.id) !== -1;
-            //
-            //        console.log(audio.id, 'audio.added', audio.added);
-            //        return audio;
-            //    });
-            //});
+            var promise = musicService.getAudios();
 
-            $scope.setUser(user);
-            $scope.setAlbums(albums);
-            $scope.setAudios(audios);
-            $scope.setCurrentAlbum(albumID);
+            switch (albumID) {
+                case ALBUM.RECOMEND:
+                    promise.then(function () {
+                        return musicService.getRecommendations();
+                    });
+                    break;
+                case ALBUM.WALL:
+                    promise.then(function () {
+                        return musicService.getWall();
+                    });
+                    break;
+                case ALBUM.POPULAR:
+                    promise.then(function () {
+                        return musicService.getPopular();
+                    });
+                    break;
+            }
+
+            promise.then(function () {
+                console.log('albums', albums);
+                $scope.setUser(user);
+                $scope.setAlbums(albums);
+
+                musicService.getAll().then(function (audios) {
+                    $scope.setAudios(audios);
+                    $scope.setCurrentAlbum(albumID);
+                });
+            });
         }
     ]);
 

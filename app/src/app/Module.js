@@ -2,8 +2,8 @@
     'use strict';
 
     ng.module('app', ['music', 'vk', 'ngRoute', 'LocalStorageModule'])
-        .config(['$routeProvider', '$locationProvider', 'localStorageServiceProvider',
-            function ($routeProvider, $locationProvider, localStorageServiceProvider) {
+        .config(['$routeProvider', '$locationProvider',
+            function ($routeProvider, $locationProvider) {
                 var albumResolve = {
                     user: function (musicService) {
                         return musicService.getUser();
@@ -15,21 +15,7 @@
                     },
                     audios: function (musicService) {
                         return musicService.getUser().then(function () {
-                            return musicService.getWall();
-                        }).then(function () {
-                            return musicService.getRecommendations();
-                        }).then(function () {
-                            return musicService.getPopular();
-                        }).then(function () {
                             return musicService.getAudios();
-                        }).then(function () {
-                            return musicService.getAll();
-                        });
-                    },
-
-                    audioIDS: function (musicService) {
-                        return musicService.getUser().then(function() {
-                           return musicService.getIDS();
                         });
                     }
                 };
@@ -56,10 +42,10 @@
                 // configure html5 to get links working on jsfiddle
                 $locationProvider.hashPrefix('!');
             }
-        ]).run(['musicService', '$location', function(musicService, $location) {
-            musicService.getUser().then(function() {
+        ]).run(['musicService', '$location', function (musicService, $location) {
+            musicService.getUser().then(function () {
                 $location.path('/album/0');
-            }, function() {
+            }, function () {
                 $location.path('/login');
             });
         }]);

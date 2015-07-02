@@ -25,24 +25,25 @@
             22: 'Electropop & Disco',
             18: 'Other'
         })
-        .service('musicService', ['$q', 'VKAPI', 'GENRES', 'localStorageService', MusicService]);
+        .constant('ALBUM', {
+            ALL: 0,
+            RECOMEND: 1,
+            WALL: 2,
+            POPULAR: 3
+        })
+        .factory('musicService', ['$q', 'VKAPI', 'GENRES', 'ALBUM', MusicService]);
 
     /**
      * @constructor
      */
-    function MusicService($q, VKAPI, GENRES, localStorageService) {
-        var ALBUM = {
-                ALL: 0,
-                RECOMEND: 1,
-                WALL: 2,
-                POPULAR: 3
-            },
-            defaultAlbums = {
+    function MusicService($q, VKAPI, GENRES, ALBUM) {
+        var defaultAlbums = {
                 0: 'Все',
                 1: 'Рекомендации',
                 2: 'Стена',
                 3: 'Популярное'
             },
+            user,
             all = {},
             audiosIDS = [],
             albums = [],
@@ -181,14 +182,25 @@
             },
 
             getUser: function () {
-                return methods.init()
-                    .then(function () {
-                        if (VKAPI.getUser()) {
-                            return VKAPI.getUser();
-                        }
+                return $q(function (resolve, reject) {
+                    var resolveUser = function () {
+                        user = VKAPI.getUser();
+                        resolve(user);
+                    };
 
-                        return VKAPI.getLoginStatus();
-                    });
+                    if (user) {
+                        resolve(user);
+                    } else {
+                        methods.init()
+                            .then(function () {
+                                if (VKAPI.getUser()) {
+                                    resolveUser();
+                                } else {
+                                    VKAPI.getLoginStatus().then(resolveUser);
+                                }
+                            });
+                    }
+                });
             },
 
             getUserName: function () {
@@ -201,7 +213,7 @@
                 });
             },
 
-            getIDS: function() {
+            getIDS: function () {
                 return $q(function (resolve, reject) {
                     resolve(audiosIDS);
                 });
@@ -344,7 +356,7 @@
                 });
             },
 
-            addAudio: function(id) {
+            addAudio: function (id) {
                 var params = {
                     owner_id: VKAPI.getUser().id,
                     audio_id: id
