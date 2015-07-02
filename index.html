@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" ng-cloak ng-app="app" ng-controller="AppController as app">
 <head>
-    <title>VK Музыка {{ app.title }}</title>
-    <base href="/angular-vk-music/">
+    <title ng-bind="'VK Музыка' + app.title">VK Музыка</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
 
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic' rel='stylesheet'
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,600,300&subset=latin,cyrillic'
+          rel='stylesheet'
           type='text/css'>
     <link rel="stylesheet" href="assets/dist.css">
     <style type="text/css">

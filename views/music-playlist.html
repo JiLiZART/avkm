@@ -13,10 +13,12 @@
         <tbody>
         <tr class="music-playlist__table-row"
             ng-class="{'music-playlist__table-row_active': index == app.position}"
-            ng-click="playByPosition(index, $event)"
             ng-repeat="(index, audio) in app.playlist | filter:{$:app.query}">
             <td>
-                <span class="music-playlist__table-row-icon">
+                <span class="music-playlist__table-row-add-icon" ng-click="addAudio(audio.id)">
+                    <i ng-class="{'true':'fa fa-minus', 'false':'fa fa-plus'}[audio.added]"></i>
+                </span>
+                <span class="music-playlist__table-row-play-icon" ng-click="playByPosition(index, $event)">
                     <i ng-class="{'play':'fa fa-pause','pause':'fa fa-play','stop':'fa fa-play'}[app.state]"
                        ng-if="index == app.position"></i>
                     <i class="fa fa-play" ng-if="index !== app.position"></i>

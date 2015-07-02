@@ -6717,15 +6717,16 @@ html
 }.music-playlist__content
 {
     padding: 0 20px 20px;
-}.music-playlist__table-row-icon
-{
-    margin-right: 20px;
+}.music-playlist__table-row-add-icon,
+.music-playlist__table-row-play-icon
+{margin-right: 20px;
+
+    cursor: pointer;
 }.music-playlist__table-row-title
 {
     font-size: 16px;
 }.music-playlist__table-row
-{cursor: pointer;
-
+{
     border: none;
 }.music-playlist__table-row_active
 {
