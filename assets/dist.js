@@ -49026,80 +49026,127 @@ angular.module("com.2fdevs.videogular.plugins.controls")
 (function (window, angular, _) {
     'use strict';
 
-    var APP_ID = '4966083';
-    var API_VERSION = '5.34';
-    var MAX_COUNT = 6000;
-
     angular.module('vk')
-        .service('VKAPI', ['$q', VKService]);
+        .constant('API_VERSION', '5.35')
+        .factory('VKAPI', ['$q', '$window', 'API_VERSION', 'APP_ID', VKService]);
 
-    function VKService($q) {
+    var APPENDED = false;
+
+    function appendScript() {
+        if (APPENDED === false) {
+            var el = document.createElement("script");
+            el.type = "text/javascript";
+            el.src = "//vk.com/js/api/openapi.js";
+            el.async = true;
+            document.getElementById("vk_api_transport").appendChild(el);
+        }
+
+        APPENDED = true;
+    }
+
+    function VKService($q, $window, API_VERSION, APP_ID) {
         var defer = $q.defer();
         var versionOptions = {
             v: API_VERSION
         };
-        var session;
-        var user;
+        var SESSION;
+        var INJECTED = false;
+        var USER;
 
-        window.vkAsyncInit = function () {
+        $window.vkAsyncInit = function () {
             VK.init({apiId: APP_ID});
 
             methods.access = VK.access;
             methods.apiCall = VK.Api.call; //_.debounce(VK.Api.call, 300);
 
-            defer.resolve();
+            setTimeout(function () {
+                INJECTED = true;
+                defer.resolve(INJECTED);
+            }, 0);
         };
 
         var methods = {
             access: null,
+            session: SESSION,
 
-            getSession: function () {
-                return session;
-            },
-
+            /**
+             * @returns {Promise}
+             */
             getUser: function () {
-                return user;
-            },
-
-            getUserFullName: function () {
-                return user.first_name + ' ' + user.last_name;
-            },
-
-            loadUser: function () {
-                return methods.api('users.get', {
-                    user_ids: session.mid
-                }).then(function (data) {
-                    user = data[0];
-                    return user;
+                return $q(function (resolve, reject) {
+                    if (USER) {
+                        resolve(USER);
+                    } else {
+                        reject(false);
+                    }
                 });
             },
 
+            user: function() {
+                return USER;
+            },
+
+            userFullName: function () {
+                return USER.first_name + ' ' + USER.last_name;
+            },
+
+            /**
+             * @returns {Promise}
+             */
+            apiUsersGetCurrent: function () {
+                return methods.api('users.get', {
+                    user_ids: SESSION.mid
+                }).then(function (data) {
+                    USER = data[0];
+                    return USER;
+                });
+            },
+
+            /**
+             * @returns {Promise}
+             */
+            apiUsersGet: function(ids) {
+                return methods.api('users.get', {
+                    user_ids: ids
+                });
+            },
+
+            /**
+             * @returns {Promise}
+             */
             getLoginStatus: function () {
                 return $q(function (resolve, reject) {
                     VK.Auth.getLoginStatus(function (data) {
-                        session = data.session;
+                        SESSION = data.session;
 
-                        if (session) {
-                            methods.loadUser().then(function () {
-                                resolve(user);
-                            });
+                        if (SESSION !== null && data.status !== 'not_authorized') {
+                            methods.apiUsersGetCurrent().then(function () {
+                                resolve(USER);
+                            }, reject);
                         } else {
-                            reject(data.error);
+                            reject(data);
                         }
                     });
                 });
             },
 
+            /**
+             * @returns {Boolean}
+             */
             isGuest: function () {
-                return typeof user === 'undefined';
+                return typeof USER === 'undefined';
             },
 
+            /**
+             * @param {Number} access code
+             * @returns {Promise}
+             */
             login: function (access) {
                 return $q(function (resolve, reject) {
                     VK.Auth.login(function (data) {
                         if (data.status === "connected") {
-                            session = data.session;
-                            methods.loadUser().then(function () {
+                            SESSION = data.session;
+                            methods.apiUsersGetCurrent().then(function () {
                                 resolve(data.session);
                             });
                         } else {
@@ -49109,6 +49156,9 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             logout: function () {
                 return $q(function (resolve, reject) {
                     VK.Auth.logout(function (data) {
@@ -49117,6 +49167,9 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             api: function (method, settings) {
                 var params = angular.extend(versionOptions, {
                     offset: 0
@@ -49161,20 +49214,17 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 return apiCall(method, params);
             },
 
+            /**
+             * @returns {Promise}
+             */
             inject: function () {
                 setTimeout(function () {
-                    var el = document.createElement("script");
-                    el.type = "text/javascript";
-                    el.src = "//vk.com/js/api/openapi.js";
-                    el.async = true;
-                    document.getElementById("vk_api_transport").appendChild(el);
+                    appendScript();
                 }, 0);
 
                 return defer.promise;
             }
         };
-
-        methods.inject();
 
         return methods;
     }
@@ -49198,6 +49248,7 @@ angular.module("com.2fdevs.videogular.plugins.controls")
     'use strict';
 
     angular.module('music')
+        .constant('APP_ID', '4966083')
         .constant('GENRES', {
             1: 'Rock',
             2: 'Pop',
@@ -49239,10 +49290,11 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 2: 'Стена',
                 3: 'Популярное'
             },
-            user,
+            USER,
+            INJECTED = false,
             all = {},
             audiosIDS = [],
-            albums = [],
+            albums = {},
             artists = {},
             recommendations = [],
             audios = [],
@@ -49362,7 +49414,18 @@ angular.module("com.2fdevs.videogular.plugins.controls")
 
         var methods = {
             init: function () {
-                return VKAPI.inject();
+                var defer = $q.defer();
+
+                if (INJECTED === false) {
+                    return VKAPI.inject().then(function() {
+                        INJECTED = true;
+                        return INJECTED;
+                    });
+                }
+
+                defer.resolve(INJECTED);
+
+                return defer.promise;
             },
 
             isGuest: function () {
@@ -49377,49 +49440,57 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 return VKAPI.logout();
             },
 
+            /**
+             * @returns {Promise}
+             */
             getUser: function () {
                 return $q(function (resolve, reject) {
                     var resolveUser = function () {
-                        user = VKAPI.getUser();
-                        resolve(user);
+                        USER = VKAPI.user();
+                        resolve(VKAPI.user());
                     };
 
-                    if (user) {
-                        resolve(user);
+                    if (INJECTED && USER) {
+                        resolve(USER);
                     } else {
-                        methods.init()
-                            .then(function () {
-                                if (VKAPI.getUser()) {
-                                    resolveUser();
-                                } else {
-                                    VKAPI.getLoginStatus().then(resolveUser);
-                                }
-                            });
+                        methods
+                            .init()
+                            .then(function () { return VKAPI.getLoginStatus(); }, reject)
+                            .then(resolveUser, reject);
                     }
                 });
             },
 
-            getUserName: function () {
-                return VKAPI.getUserFullName();
+            userName: function () {
+                return VKAPI.userFullName();
             },
 
+            /**
+             * @returns {Promise}
+             */
             getArtists: function () {
                 return $q(function (resolve, reject) {
                     resolve(artists);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getIDS: function () {
                 return $q(function (resolve, reject) {
                     resolve(audiosIDS);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAlbums: function () {
                 return $q(function (resolve, reject) {
                     var items = albums;
 
-                    if (items && items.length) {
+                    if (items && items['0']) {
                         resolve(items);
                     } else {
                         methods.loadAlbums().then(function () {
@@ -49430,9 +49501,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadAlbums: function () {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 100
                 };
 
@@ -49441,12 +49515,18 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAll: function () {
                 return $q(function (resolve, reject) {
                     resolve(all);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getPopular: function () {
                 return $q(function (resolve, reject) {
                     var items = popular;
@@ -49461,9 +49541,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadPopular: function () {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 1000
                 };
 
@@ -49472,6 +49555,9 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getWall: function () {
                 return $q(function (resolve, reject) {
                     var items = wall;
@@ -49486,9 +49572,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadWall: function () {
                 return VKAPI.api('wall.get', {
-                    owner_id: VKAPI.getUser().id
+                    owner_id: VKAPI.user().id
                 }).then(function (data) {
                     return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
                             wallAudios.forEach(addWallAudio);
@@ -49496,6 +49585,9 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAudios: function () {
                 return $q(function (resolve, reject) {
                     var items = audios;
@@ -49510,9 +49602,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadAudios: function (albumID) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 6000
                 };
 
@@ -49525,6 +49620,9 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getRecommendations: function () {
                 return $q(function (resolve, reject) {
                     if (recommendations.length) {
@@ -49537,9 +49635,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadRecommendations: function (shuffle) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 1000
                 };
 
@@ -49552,9 +49653,12 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             addAudio: function (id) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     audio_id: id
                 };
 
@@ -49563,6 +49667,8 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 });
             }
         };
+
+        methods.init();
 
         return methods;
     }
@@ -49766,39 +49872,28 @@ angular.module("com.2fdevs.videogular.plugins.controls")
     module.controller('AlbumController', [
         '$scope', '$routeParams', 'musicService', 'ALBUM', 'user', 'albums', 'audios',
         function ($scope, $routeParams, musicService, ALBUM, user, albums, audios) {
-            console.log('AlbumController');
             var albumID = $routeParams.albumId || 0;
 
-            var promise = musicService.getAudios();
+            musicService
+                .getAudios()
+                .then(function () {
+                    return musicService.getRecommendations();
+                })
+                .then(function () {
+                    return musicService.getWall();
+                })
+                .then(function () {
+                    return musicService.getPopular();
+                })
+                .then(function () {
+                    $scope.setUser(user);
+                    $scope.setAlbums(albums);
 
-            switch (albumID) {
-                case ALBUM.RECOMEND:
-                    promise.then(function () {
-                        return musicService.getRecommendations();
+                    musicService.getAll().then(function (audios) {
+                        $scope.setAudios(audios);
+                        $scope.setCurrentAlbum(albumID);
                     });
-                    break;
-                case ALBUM.WALL:
-                    promise.then(function () {
-                        return musicService.getWall();
-                    });
-                    break;
-                case ALBUM.POPULAR:
-                    promise.then(function () {
-                        return musicService.getPopular();
-                    });
-                    break;
-            }
-
-            promise.then(function () {
-                console.log('albums', albums);
-                $scope.setUser(user);
-                $scope.setAlbums(albums);
-
-                musicService.getAll().then(function (audios) {
-                    $scope.setAudios(audios);
-                    $scope.setCurrentAlbum(albumID);
                 });
-            });
         }
     ]);
 
@@ -49807,13 +49902,17 @@ angular.module("com.2fdevs.videogular.plugins.controls")
 (function (ng) {
     'use strict';
 
-    ng.module('app', ['music', 'vk', 'ngRoute', 'LocalStorageModule'])
+    var resolveUser = function(musicService, $location) {
+        musicService.getUser().catch(function () {
+            $location.path('/login');
+        });
+    };
+
+    ng.module('app', ['music', 'vk', 'ngRoute'])
         .config(['$routeProvider', '$locationProvider',
             function ($routeProvider, $locationProvider) {
                 var albumResolve = {
-                    user: function (musicService) {
-                        return musicService.getUser();
-                    },
+                    user: resolveUser,
                     albums: function (musicService) {
                         return musicService.getUser().then(function () {
                             return musicService.getAlbums();
@@ -49848,13 +49947,7 @@ angular.module("com.2fdevs.videogular.plugins.controls")
                 // configure html5 to get links working on jsfiddle
                 $locationProvider.hashPrefix('!');
             }
-        ]).run(['musicService', '$location', function (musicService, $location) {
-            musicService.getUser().then(function () {
-                $location.path('/album/0');
-            }, function () {
-                $location.path('/login');
-            });
-        }]);
+        ]).run(['musicService', '$location', resolveUser]);
 })(angular);
 
 (function (module) {
@@ -49905,7 +49998,7 @@ angular.module("com.2fdevs.videogular.plugins.controls")
 
         $scope.setUser = function (user) {
             self.currentUser = user;
-            self.userName = musicService.getUserName();
+            self.userName = musicService.userName();
             $scope.isGuest = musicService.isGuest();
             $scope.isAuthorized = !musicService.isGuest();
         };
@@ -49953,7 +50046,7 @@ angular.module("com.2fdevs.videogular.plugins.controls")
 
         $scope.logout = function () {
             musicService.logout().then(function (data) {
-                window.location.reload();
+                $location.path('/login');
             });
         };
 
