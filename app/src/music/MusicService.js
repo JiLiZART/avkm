@@ -2,6 +2,7 @@
     'use strict';
 
     angular.module('music')
+        .constant('APP_ID', '4966083')
         .constant('GENRES', {
             1: 'Rock',
             2: 'Pop',
@@ -43,10 +44,11 @@
                 2: 'Стена',
                 3: 'Популярное'
             },
-            user,
+            USER,
+            INJECTED = false,
             all = {},
             audiosIDS = [],
-            albums = [],
+            albums = {},
             artists = {},
             recommendations = [],
             audios = [],
@@ -166,7 +168,18 @@
 
         var methods = {
             init: function () {
-                return VKAPI.inject();
+                var defer = $q.defer();
+
+                if (INJECTED === false) {
+                    return VKAPI.inject().then(function() {
+                        INJECTED = true;
+                        return INJECTED;
+                    });
+                }
+
+                defer.resolve(INJECTED);
+
+                return defer.promise;
             },
 
             isGuest: function () {
@@ -181,49 +194,57 @@
                 return VKAPI.logout();
             },
 
+            /**
+             * @returns {Promise}
+             */
             getUser: function () {
                 return $q(function (resolve, reject) {
                     var resolveUser = function () {
-                        user = VKAPI.getUser();
-                        resolve(user);
+                        USER = VKAPI.user();
+                        resolve(VKAPI.user());
                     };
 
-                    if (user) {
-                        resolve(user);
+                    if (INJECTED && USER) {
+                        resolve(USER);
                     } else {
-                        methods.init()
-                            .then(function () {
-                                if (VKAPI.getUser()) {
-                                    resolveUser();
-                                } else {
-                                    VKAPI.getLoginStatus().then(resolveUser);
-                                }
-                            });
+                        methods
+                            .init()
+                            .then(function () { return VKAPI.getLoginStatus(); }, reject)
+                            .then(resolveUser, reject);
                     }
                 });
             },
 
-            getUserName: function () {
-                return VKAPI.getUserFullName();
+            userName: function () {
+                return VKAPI.userFullName();
             },
 
+            /**
+             * @returns {Promise}
+             */
             getArtists: function () {
                 return $q(function (resolve, reject) {
                     resolve(artists);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getIDS: function () {
                 return $q(function (resolve, reject) {
                     resolve(audiosIDS);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAlbums: function () {
                 return $q(function (resolve, reject) {
                     var items = albums;
 
-                    if (items && items.length) {
+                    if (items && items['0']) {
                         resolve(items);
                     } else {
                         methods.loadAlbums().then(function () {
@@ -234,9 +255,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadAlbums: function () {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 100
                 };
 
@@ -245,12 +269,18 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAll: function () {
                 return $q(function (resolve, reject) {
                     resolve(all);
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getPopular: function () {
                 return $q(function (resolve, reject) {
                     var items = popular;
@@ -265,9 +295,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadPopular: function () {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 1000
                 };
 
@@ -276,6 +309,9 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getWall: function () {
                 return $q(function (resolve, reject) {
                     var items = wall;
@@ -290,9 +326,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadWall: function () {
                 return VKAPI.api('wall.get', {
-                    owner_id: VKAPI.getUser().id
+                    owner_id: VKAPI.user().id
                 }).then(function (data) {
                     return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
                             wallAudios.forEach(addWallAudio);
@@ -300,6 +339,9 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getAudios: function () {
                 return $q(function (resolve, reject) {
                     var items = audios;
@@ -314,9 +356,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadAudios: function (albumID) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 6000
                 };
 
@@ -329,6 +374,9 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             getRecommendations: function () {
                 return $q(function (resolve, reject) {
                     if (recommendations.length) {
@@ -341,9 +389,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             loadRecommendations: function (shuffle) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     count: 1000
                 };
 
@@ -356,9 +407,12 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             addAudio: function (id) {
                 var params = {
-                    owner_id: VKAPI.getUser().id,
+                    owner_id: VKAPI.user().id,
                     audio_id: id
                 };
 
@@ -367,6 +421,8 @@
                 });
             }
         };
+
+        methods.init();
 
         return methods;
     }

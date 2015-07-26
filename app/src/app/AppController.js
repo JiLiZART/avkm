@@ -46,7 +46,7 @@
 
         $scope.setUser = function (user) {
             self.currentUser = user;
-            self.userName = musicService.getUserName();
+            self.userName = musicService.userName();
             $scope.isGuest = musicService.isGuest();
             $scope.isAuthorized = !musicService.isGuest();
         };
@@ -94,7 +94,7 @@
 
         $scope.logout = function () {
             musicService.logout().then(function (data) {
-                window.location.reload();
+                $location.path('/login');
             });
         };
 

@@ -1,13 +1,17 @@
 (function (ng) {
     'use strict';
 
-    ng.module('app', ['music', 'vk', 'ngRoute', 'LocalStorageModule'])
+    var resolveUser = function(musicService, $location) {
+        musicService.getUser().catch(function () {
+            $location.path('/login');
+        });
+    };
+
+    ng.module('app', ['music', 'vk', 'ngRoute'])
         .config(['$routeProvider', '$locationProvider',
             function ($routeProvider, $locationProvider) {
                 var albumResolve = {
-                    user: function (musicService) {
-                        return musicService.getUser();
-                    },
+                    user: resolveUser,
                     albums: function (musicService) {
                         return musicService.getUser().then(function () {
                             return musicService.getAlbums();
@@ -42,11 +46,5 @@
                 // configure html5 to get links working on jsfiddle
                 $locationProvider.hashPrefix('!');
             }
-        ]).run(['musicService', '$location', function (musicService, $location) {
-            musicService.getUser().then(function () {
-                $location.path('/album/0');
-            }, function () {
-                $location.path('/login');
-            });
-        }]);
+        ]).run(['musicService', '$location', resolveUser]);
 })(angular);

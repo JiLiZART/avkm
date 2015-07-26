@@ -1,80 +1,127 @@
 (function (window, angular, _) {
     'use strict';
 
-    var APP_ID = '4966083';
-    var API_VERSION = '5.34';
-    var MAX_COUNT = 6000;
-
     angular.module('vk')
-        .service('VKAPI', ['$q', VKService]);
+        .constant('API_VERSION', '5.35')
+        .factory('VKAPI', ['$q', '$window', 'API_VERSION', 'APP_ID', VKService]);
 
-    function VKService($q) {
+    var APPENDED = false;
+
+    function appendScript() {
+        if (APPENDED === false) {
+            var el = document.createElement("script");
+            el.type = "text/javascript";
+            el.src = "//vk.com/js/api/openapi.js";
+            el.async = true;
+            document.getElementById("vk_api_transport").appendChild(el);
+        }
+
+        APPENDED = true;
+    }
+
+    function VKService($q, $window, API_VERSION, APP_ID) {
         var defer = $q.defer();
         var versionOptions = {
             v: API_VERSION
         };
-        var session;
-        var user;
+        var SESSION;
+        var INJECTED = false;
+        var USER;
 
-        window.vkAsyncInit = function () {
+        $window.vkAsyncInit = function () {
             VK.init({apiId: APP_ID});
 
             methods.access = VK.access;
             methods.apiCall = VK.Api.call; //_.debounce(VK.Api.call, 300);
 
-            defer.resolve();
+            setTimeout(function () {
+                INJECTED = true;
+                defer.resolve(INJECTED);
+            }, 0);
         };
 
         var methods = {
             access: null,
+            session: SESSION,
 
-            getSession: function () {
-                return session;
-            },
-
+            /**
+             * @returns {Promise}
+             */
             getUser: function () {
-                return user;
-            },
-
-            getUserFullName: function () {
-                return user.first_name + ' ' + user.last_name;
-            },
-
-            loadUser: function () {
-                return methods.api('users.get', {
-                    user_ids: session.mid
-                }).then(function (data) {
-                    user = data[0];
-                    return user;
+                return $q(function (resolve, reject) {
+                    if (USER) {
+                        resolve(USER);
+                    } else {
+                        reject(false);
+                    }
                 });
             },
 
+            user: function() {
+                return USER;
+            },
+
+            userFullName: function () {
+                return USER.first_name + ' ' + USER.last_name;
+            },
+
+            /**
+             * @returns {Promise}
+             */
+            apiUsersGetCurrent: function () {
+                return methods.api('users.get', {
+                    user_ids: SESSION.mid
+                }).then(function (data) {
+                    USER = data[0];
+                    return USER;
+                });
+            },
+
+            /**
+             * @returns {Promise}
+             */
+            apiUsersGet: function(ids) {
+                return methods.api('users.get', {
+                    user_ids: ids
+                });
+            },
+
+            /**
+             * @returns {Promise}
+             */
             getLoginStatus: function () {
                 return $q(function (resolve, reject) {
                     VK.Auth.getLoginStatus(function (data) {
-                        session = data.session;
+                        SESSION = data.session;
 
-                        if (session) {
-                            methods.loadUser().then(function () {
-                                resolve(user);
-                            });
+                        if (SESSION !== null && data.status !== 'not_authorized') {
+                            methods.apiUsersGetCurrent().then(function () {
+                                resolve(USER);
+                            }, reject);
                         } else {
-                            reject(data.error);
+                            reject(data);
                         }
                     });
                 });
             },
 
+            /**
+             * @returns {Boolean}
+             */
             isGuest: function () {
-                return typeof user === 'undefined';
+                return typeof USER === 'undefined';
             },
 
+            /**
+             * @param {Number} access code
+             * @returns {Promise}
+             */
             login: function (access) {
                 return $q(function (resolve, reject) {
                     VK.Auth.login(function (data) {
                         if (data.status === "connected") {
-                            session = data.session;
-                            methods.loadUser().then(function () {
+                            SESSION = data.session;
+                            methods.apiUsersGetCurrent().then(function () {
                                 resolve(data.session);
                             });
                         } else {
@@ -84,6 +131,9 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             logout: function () {
                 return $q(function (resolve, reject) {
                     VK.Auth.logout(function (data) {
@@ -92,6 +142,9 @@
                 });
             },
 
+            /**
+             * @returns {Promise}
+             */
             api: function (method, settings) {
                 var params = angular.extend(versionOptions, {
                     offset: 0
@@ -136,20 +189,17 @@
                 return apiCall(method, params);
             },
 
+            /**
+             * @returns {Promise}
+             */
             inject: function () {
                 setTimeout(function () {
-                    var el = document.createElement("script");
-                    el.type = "text/javascript";
-                    el.src = "//vk.com/js/api/openapi.js";
-                    el.async = true;
-                    document.getElementById("vk_api_transport").appendChild(el);
+                    appendScript();
                 }, 0);
 
                 return defer.promise;
             }
         };
-
-        methods.inject();
 
         return methods;
     }
