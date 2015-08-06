@@ -7,6 +7,12 @@
         });
     };
 
+    var loginResolve = function (musicService, $location) {
+        musicService.getUser().then(function () {
+            $location.path('/');
+        });
+    };
+
     ng.module('app', ['music', 'vk', 'ngRoute'])
         .config(['$routeProvider', '$locationProvider',
             function ($routeProvider, $locationProvider) {
@@ -25,7 +31,7 @@
                 };
 
                 $routeProvider
-                    .when('', {
+                    .when('/', {
                         templateUrl: 'views/album.html',
                         controller: 'AlbumController',
                         controllerAs: 'album',
@@ -34,13 +40,17 @@
                     .when('/login', {
                         templateUrl: 'views/login.html',
                         controller: 'LoginController',
-                        controllerAs: 'auth'
+                        controllerAs: 'auth',
+                        resolve: loginResolve
                     })
                     .when('/album/:albumId', {
                         templateUrl: 'views/album.html',
                         controller: 'AlbumController',
                         controllerAs: 'album',
                         resolve: albumResolve
+                    })
+                    .otherwise({
+                        redirectTo: '/login'
                     });
 
                 // configure html5 to get links working on jsfiddle
