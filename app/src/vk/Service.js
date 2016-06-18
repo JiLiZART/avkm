@@ -1,4 +1,5 @@
 (function (window, angular, _) {
+    /* global VK */
     'use strict';
 
     angular.module('vk')

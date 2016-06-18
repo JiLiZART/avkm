@@ -53,6 +53,7 @@
             recommendations = [],
             audios = [],
             wall = [],
+            groups = [],
             popular = [];
 
         function toTitleCase(str) {
@@ -106,13 +107,6 @@
 
             audiosIDS.push(audio.id);
             audios.push(transformAudio(audio));
-        }
-
-        function addArtist(audio) {
-            var key = toTitleCase(audio.artist.trim().toLowerCase());
-
-            artists[key] = artists[key] || [];
-            artists[key].push(transformAudio(audio));
         }
 
         function fromWallPost(wallPost) {
@@ -332,6 +326,33 @@
             loadWall: function () {
                 return VKAPI.api('wall.get', {
                     owner_id: VKAPI.user().id
+                }).then(function (data) {
+                    return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
+                            wallAudios.forEach(addWallAudio);
+                        });
+                });
+            },
+
+            getGroups: function () {
+                return $q(function (resolve, reject) {
+                    var items = groups;
+
+                    if (items && items.length) {
+                        resolve(items);
+                    } else {
+                        methods.loadGroups().then(function () {
+                            resolve(groups);
+                        }, reject);
+                    }
+                });
+            },
+
+            /**
+             * @returns {Promise}
+             */
+            loadGroups: function () {
+                return VKAPI.api('groups.get', {
+                    user_id: VKAPI.user().id
                 }).then(function (data) {
                     return data.items && data.items.map(fromWallPost).forEach(function (wallAudios) {
                             wallAudios.forEach(addWallAudio);
